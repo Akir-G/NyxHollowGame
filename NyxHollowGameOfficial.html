@@ -1,0 +1,2743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nyx Hollow's Quest - Mind Flayer's Curse</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --parchment: #f4e8d0;
+            --dark-parchment: #d4c4a8;
+            --ink: #2a1810;
+            --blood-red: #8b0000;
+            --mystic-purple: #4a1a4a;
+            --elder-gold: #d4af37;
+            --shadow: rgba(0, 0, 0, 0.3);
+            --glow: rgba(212, 175, 55, 0.6);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Crimson Pro', serif;
+            background: linear-gradient(135deg, #1a0a0a 0%, #2d1810 50%, #1a0a0a 100%);
+            background-attachment: fixed;
+            color: var(--ink);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(139, 0, 0, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(74, 26, 74, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .game-container {
+            position: relative;
+            max-width: 900px;
+            width: 100%;
+            background: var(--parchment);
+            border: 3px solid var(--ink);
+            border-radius: 8px;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.8),
+                inset 0 0 100px rgba(212, 175, 55, 0.1);
+            padding: 3rem;
+            z-index: 1;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .game-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(42, 24, 16, 0.03) 2px,
+                    rgba(42, 24, 16, 0.03) 4px
+                );
+            pointer-events: none;
+            border-radius: 8px;
+        }
+
+        .title {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            color: var(--mystic-purple);
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 0 var(--elder-gold);
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            text-align: center;
+            color: var(--blood-red);
+            margin-bottom: 2rem;
+            font-style: italic;
+        }
+
+        .location-header {
+            background: linear-gradient(135deg, var(--mystic-purple), var(--blood-red));
+            color: var(--parchment);
+            padding: 1rem 1.5rem;
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .location-name {
+            font-family: 'Cinzel', serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .narrative-box {
+            background: rgba(255, 255, 255, 0.5);
+            border: 2px solid var(--dark-parchment);
+            border-radius: 6px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            min-height: 200px;
+            line-height: 1.8;
+            font-size: 1.1rem;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .narrative-text {
+            white-space: pre-wrap;
+        }
+
+        .loading {
+            display: inline-block;
+            font-style: italic;
+            color: var(--mystic-purple);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .actions-container {
+            margin-top: 1.5rem;
+        }
+
+        .actions-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.3rem;
+            color: var(--mystic-purple);
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--elder-gold);
+            padding-bottom: 0.5rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .action-btn {
+            background: linear-gradient(135deg, var(--parchment), var(--dark-parchment));
+            border: 2px solid var(--ink);
+            padding: 1rem 1.5rem;
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.1rem;
+            color: var(--ink);
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-btn.required {
+            background: linear-gradient(135deg, #ffe8cc, #ffd4a8);
+            border: 3px solid var(--elder-gold);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+        }
+
+        .action-btn.required::after {
+            content: '[REQUIRED]';
+            position: absolute;
+            right: 1rem;
+            color: var(--elder-gold);
+            font-weight: 700;
+            font-family: 'Cinzel', serif;
+            font-size: 0.9rem;
+            text-shadow: 0 0 5px rgba(212, 175, 55, 0.6);
+        }
+
+        .action-btn.optional {
+            background: linear-gradient(135deg, #e8f4ff, #d0e8ff);
+            border: 2px solid var(--mystic-purple);
+        }
+
+        .action-btn.optional::after {
+            content: '[OPTIONAL]';
+            position: absolute;
+            right: 1rem;
+            color: var(--mystic-purple);
+            font-weight: 600;
+            font-family: 'Cinzel', serif;
+            font-size: 0.85rem;
+        }
+
+        .action-btn::before {
+            content: '›';
+            position: absolute;
+            left: 1rem;
+            opacity: 0;
+            transition: all 0.3s ease;
+            font-size: 1.5rem;
+            color: var(--elder-gold);
+        }
+
+        .action-btn:hover {
+            background: linear-gradient(135deg, var(--elder-gold), var(--dark-parchment));
+            transform: translateX(10px);
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .action-btn:hover::before {
+            opacity: 1;
+            left: 0.5rem;
+        }
+
+        .action-btn:active {
+            transform: translateX(10px) scale(0.98);
+        }
+
+        .action-btn.locked {
+            background: linear-gradient(135deg, #666, #444);
+            color: #999;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .action-btn.locked:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .inventory {
+            background: rgba(74, 26, 74, 0.1);
+            border: 2px solid var(--mystic-purple);
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .inventory-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            color: var(--mystic-purple);
+            margin-bottom: 0.8rem;
+        }
+
+        .inventory-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+        }
+
+        .inventory-item {
+            background: var(--parchment);
+            border: 1px solid var(--ink);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .inventory-item::before {
+            content: '✦';
+            color: var(--elder-gold);
+        }
+
+        .spell-item::before {
+            content: '✧';
+            color: var(--mystic-purple);
+        }
+
+        .game-over {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .ending-title {
+            font-family: 'Cinzel', serif;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .ending-title.redeemer {
+            color: var(--elder-gold);
+            text-shadow: 0 0 20px var(--glow);
+        }
+
+        .ending-title.corrupted {
+            color: var(--blood-red);
+            text-shadow: 0 0 20px rgba(139, 0, 0, 0.8);
+        }
+
+        .ending-title.ascendant {
+            color: var(--mystic-purple);
+            text-shadow: 0 0 20px rgba(74, 26, 74, 0.8);
+        }
+
+        .restart-btn {
+            background: linear-gradient(135deg, var(--mystic-purple), var(--blood-red));
+            color: var(--parchment);
+            border: none;
+            padding: 1rem 2rem;
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            cursor: pointer;
+            border-radius: 6px;
+            margin-top: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .restart-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px var(--shadow);
+        }
+
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 1.5rem;
+            }
+
+            .title {
+                font-size: 1.8rem;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+            }
+        }
+
+        /* Music Controls */
+        .music-controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(42, 24, 16, 0.9);
+            border: 2px solid var(--elder-gold);
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            box-shadow: 0 4px 12px var(--shadow);
+            z-index: 1000;
+            min-width: 150px;
+        }
+
+        .music-controls-title {
+            font-family: 'Cinzel', serif;
+            font-size: 0.9rem;
+            color: var(--elder-gold);
+            text-align: center;
+            margin-bottom: 0.3rem;
+        }
+
+        .mute-btn {
+            background: linear-gradient(135deg, var(--mystic-purple), var(--blood-red));
+            color: var(--parchment);
+            border: none;
+            padding: 0.6rem 1rem;
+            font-family: 'Cinzel', serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .mute-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px var(--glow);
+        }
+
+        .mute-btn.muted {
+            background: linear-gradient(135deg, #666, #444);
+            opacity: 0.7;
+        }
+
+        .volume-control {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .volume-label {
+            font-family: 'Crimson Pro', serif;
+            font-size: 0.85rem;
+            color: var(--parchment);
+            text-align: center;
+        }
+
+        .volume-slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--dark-parchment);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--elder-gold);
+            cursor: pointer;
+            box-shadow: 0 0 8px var(--glow);
+        }
+
+        .volume-slider::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--elder-gold);
+            cursor: pointer;
+            box-shadow: 0 0 8px var(--glow);
+            border: none;
+        }
+
+        @media (max-width: 768px) {
+            .music-controls {
+                top: 10px;
+                right: 10px;
+                padding: 0.8rem;
+                min-width: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Music Controls -->
+    <div class="music-controls">
+        <div class="music-controls-title">♪ Audio ♪</div>
+        <div id="musicStartHint" style="font-size: 0.75rem; color: var(--elder-gold); text-align: center; margin-bottom: 0.5rem; font-style: italic;">Click to start</div>
+        <button id="muteBtn" class="mute-btn">🔊 Mute Music</button>
+        <button id="voiceBtn" class="mute-btn" style="margin-top: 0.5rem;">🎙️ Voice: ON</button>
+        <div class="volume-control">
+            <label class="volume-label">Music Volume</label>
+            <input type="range" id="volumeSlider" class="volume-slider" min="0" max="100" value="50">
+        </div>
+    </div>
+
+    <div class="game-container">
+        <h1 class="title">Nyx Hollow's Quest</h1>
+        <h2 class="subtitle">The Mind Flayer's Curse</h2>
+
+        <div id="inventory" class="inventory">
+            <div class="inventory-title">Inventory & Spells</div>
+            <div class="inventory-items" id="inventoryItems">
+                <span class="inventory-item">Empty</span>
+            </div>
+        </div>
+
+        <div id="locationHeader" class="location-header">
+            <div class="location-name" id="locationName">The Evening Star Inn</div>
+        </div>
+
+        <div class="narrative-box">
+            <div class="narrative-text" id="narrativeText">
+                <span class="loading">Initializing your adventure...</span>
+            </div>
+        </div>
+
+        <div class="actions-container">
+            <div class="actions-title">Available Actions</div>
+            <div class="action-buttons" id="actionButtons">
+                <!-- Actions will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Backend API Configuration
+        const BACKEND_URL = 'http://localhost:3000';
+        const USE_BACKEND = false;
+
+        // ElevenLabs Voice Files
+        const ELEVENLABS_VOICES = {
+            // Main Story & NPCs
+            'start_game': 'start_game.mp3',
+            'talk_brynn': 'talk_brynn.mp3',
+            'talk_gale': 'talk_gale.mp3',
+            'talk_mira': 'talk_mira.mp3',
+            'leave_inn': 'leave_inn.mp3',
+            
+            // Sidequests
+            'sidequest_wind': 'sidequest_wind.mp3',
+            'sidequest_strength': 'sidequest_strength.mp3',
+            'sidequest_flame': 'sidequest_flame.mp3',
+            'sidequest_detect': 'sidequest_detect.mp3',
+            'sidequest_mage_hand': 'sidequest_mage_hand.mp3',
+            'sidequest_light': 'sidequest_light.mp3',
+            
+            // Widow's Thicket
+            'to_widows_thicket': 'to_widows_thicket.mp3',
+            
+            // Obstacles - Vines
+            'vines_flame': 'vines_flame.mp3',
+            'vines_strength': 'vines_strength.mp3',
+            
+            // Obstacles - Ravine
+            'ravine_wind': 'ravine_wind.mp3',
+            'ravine_wind_safe': 'ravine_wind_safe.mp3',
+            
+            // Obstacles - Stone Door
+            'stone_door_strength': 'stone_door_strength.mp3',
+            
+            // Ship Obstacles - use context keys
+            'ship_wall_flame': 'ship_wall_flame.mp3',
+            'ship_wall_strength': 'ship_wall_strength.mp3',
+            'ship_tendrils_flame': 'ship_tendrils_flame.mp3',
+            'ship_tendrils_strength': 'ship_tendrils_strength.mp3',
+            'ship_tendrils_wind': 'ship_tendrils_wind.mp3',
+            'baby_creature_discovery': 'baby_creature_discovery.mp3',
+            'baby_creature_intro': 'baby_creature_intro.mp3',
+            'baby_creature_light': 'baby_creature_light.mp3',
+            'baby_creature_rescue_light': 'baby_creature_rescue_light.mp3',
+            'baby_creature_rescue_strength': 'baby_creature_rescue_strength.mp3',
+            'baby_creature_leave': 'baby_creature_leave.mp3',
+            'baby_creature_ignore': 'baby_creature_ignore.mp3',
+            'luminara_appears': 'luminara_appears.mp3',
+            
+            // Obsidian Athenaeum
+            'enter_structure': 'enter_structure.mp3',
+            'obstacle_stone_door': 'obstacle_stone_door.mp3',
+            'stone_door_strength': 'stone_door_strength.mp3',
+            'subtle_presence': 'subtle_presence.mp3',
+            'find_grimoire_magic': 'find_grimoire_magic.mp3',
+            'find_grimoire_search': 'find_grimoire_search.mp3',
+            'grimoire_search_fail': 'grimoire_search_fail.mp3',
+            'take_prism': 'take_prism.mp3',
+            'leave_athenaeum': 'leave_athenaeum.mp3',
+            
+            // Runebound Depths
+            'talk_to_drow': 'talk_to_drow.mp3',
+            'drow_quest_intro': 'drow_quest_intro.mp3',
+            'drow_mage_hand': 'drow_mage_hand.mp3',
+            'drow_wind': 'drow_wind.mp3',
+            'drow_flame': 'drow_flame.mp3',
+            'drow_quest_success': 'drow_quest_success.mp3',
+            'runebound_awakening': 'runebound_awakening.mp3',
+            
+            // Mental Realm / Entity
+            'teleport_out': 'teleport_out.mp3',
+            'teleport_repeat': 'teleport_repeat.mp3',
+            'entity_initial_contact': 'entity_initial_contact.mp3',
+            'entity_encounter': 'entity_encounter.mp3',
+            'entity_determined': 'entity_determined.mp3',
+            'entity_aggressive': 'entity_aggressive.mp3',
+            'entity_frightened': 'entity_frightened.mp3',
+            'entity_curious': 'entity_curious.mp3',
+            'entity_resist': 'entity_resist.mp3',
+            'entity_listen': 'entity_listen.mp3',
+            'entity_dialogue_conclusion': 'entity_dialogue_conclusion.mp3',
+            
+            // Mind Flayer Ship
+            'to_ship': 'to_ship.mp3',
+            'ship_wall_flame': 'ship_wall_flame.mp3',
+            'ship_wall_strength': 'ship_wall_strength.mp3',
+            'ship_obstacle_wall_flame': 'ship_obstacle_wall_flame.mp3',
+            'ship_obstacle_wall_strength': 'ship_obstacle_wall_strength.mp3',
+            'ship_tendrils_flame': 'ship_tendrils_flame.mp3',
+            'ship_tendrils_strength': 'ship_tendrils_strength.mp3',
+            'ship_tendrils_wind': 'ship_tendrils_wind.mp3',
+            'ship_obstacle_tendrils_flame': 'ship_obstacle_tendrils_flame.mp3',
+            'ship_obstacle_tendrils_wind': 'ship_obstacle_tendrils_wind.mp3',
+            
+            // Thaxior Encounter
+            'thaxior_intro': 'thaxior_intro.mp3',
+            'thaxior_dialogue': 'thaxior_dialogue.mp3',
+            'thaxior_defiant': 'thaxior_defiant.mp3',
+            'thaxior_cautious': 'thaxior_cautious.mp3',
+            'thaxior_aggressive': 'thaxior_aggressive.mp3',
+            'thaxior_understanding': 'thaxior_understanding.mp3',
+            'psionic_assault_trigger': 'psionic_assault_trigger.mp3',
+            
+            // Blessed Path
+            'blessed_defense': 'blessed_defense.mp3',
+            'blessed_kill_flame': 'blessed_kill_flame.mp3',
+            'blessed_kill_strength': 'blessed_kill_strength.mp3',
+            'blessed_kill_wind': 'blessed_kill_wind.mp3',
+            'blessed_kill_melee': 'blessed_kill_melee.mp3',
+            
+            // Psychic Combat
+            'psionic_combat_initiation': 'psionic_combat_initiation.mp3',
+            'psychic_combat_start': 'psychic_combat_start.mp3',
+            'psionic_round_1_intro': 'psionic_round_1_intro.mp3',
+            'psionic_round_2_intro': 'psionic_round_2_intro.mp3',
+            'psionic_round_3_intro': 'psionic_round_3_intro.mp3',
+            'psychic_round_1': 'psychic_round_1.mp3',
+            'psychic_round_2': 'psychic_round_2.mp3',
+            'psychic_round_3': 'psychic_round_3.mp3',
+            
+            // Psychic Attacks - Flame
+            'psychic_flame_round1': 'psychic_flame_round1.mp3',
+            'psychic_flame_round2': 'psychic_flame_round2.mp3',
+            'psychic_flame_round3': 'psychic_flame_round3.mp3',
+            
+            // Psychic Attacks - Wind
+            'psychic_wind_round1': 'psychic_wind_round1.mp3',
+            'psychic_wind_round2': 'psychic_wind_round2.mp3',
+            'psychic_wind_round3': 'psychic_wind_round3.mp3',
+            
+            // Psychic Attacks - Strength
+            'psychic_strength_round1': 'psychic_strength_round1.mp3',
+            'psychic_strength_round2': 'psychic_strength_round2.mp3',
+            'psychic_strength_round3': 'psychic_strength_round3.mp3',
+            
+            // Psychic Attacks - Light
+            'psychic_light_round1': 'psychic_light_round1.mp3',
+            'psychic_light_round2': 'psychic_light_round2.mp3',
+            'psychic_light_round3': 'psychic_light_round3.mp3',
+            
+            // Psychic Attacks - Detect Magic
+            'psychic_detect_round1': 'psychic_detect_round1.mp3',
+            'psychic_detect_round2': 'psychic_detect_round2.mp3',
+            'psychic_detect_round3': 'psychic_detect_round3.mp3',
+            
+            // Psychic Attacks - Mage Hand
+            'psychic_mage_hand_round1': 'psychic_mage_hand_round1.mp3',
+            'psychic_mage_hand_round2': 'psychic_mage_hand_round2.mp3',
+            'psychic_mage_hand_round3': 'psychic_mage_hand_round3.mp3',
+            
+            // Psychic Combat Resolution
+            'psionic_shatter': 'psionic_shatter.mp3',
+            'final_kill_merciful': 'final_kill_merciful.mp3',
+            'final_kill_vengeful': 'final_kill_vengeful.mp3',
+            'final_kill_leave': 'final_kill_leave.mp3',
+            'final_kill_study': 'final_kill_study.mp3',
+            'thaxior_victory_normal': 'thaxior_victory_normal.mp3',
+            'thaxior_victory_blessed': 'thaxior_victory_blessed.mp3',
+            'thaxior_defeat': 'thaxior_defeat.mp3',
+            
+            // Final Confrontation
+            'final_choice': 'final_choice.mp3',
+            'final_confrontation': 'final_confrontation.mp3',
+            'return_to_square': 'return_to_square.mp3',
+            
+            // Endings
+            'ending_redeemer': 'ending_redeemer.mp3',
+            'ending_corrupted': 'ending_corrupted.mp3',
+            'ending_ascendant': 'ending_ascendant.mp3'
+        };
+        
+        let USE_ELEVENLABS = true;
+
+        // Background Music System
+        // Background Music System
+        const musicTracks = {
+            evening_star_inn: 'tavern.mp3',
+            runestone_square: 'town.mp3',
+            widows_thicket: 'forest.mp3',
+            runebound_depths: 'cave.mp3',
+            mental_realm: 'creepy.mp3',
+            obsidian_athenaeum: 'ancient.mp3',
+            mind_flayer_ship: 'horror.mp3',
+            combat: 'combat.mp3',
+            ending_redeemer: 'ending_hero.mp3',
+            ending_corrupted: 'ending_dark.mp3',
+            ending_ascendant: 'ending_secret.mp3'
+        };
+        
+        // Alternative: Uncomment these lines to use a single background track for testing
+        // const testTrack = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'; // Free test music
+        // Object.keys(musicTracks).forEach(key => musicTracks[key] = testTrack);
+
+        let currentAudio = null;
+        let isMuted = false;
+        let currentVolume = 0.5;
+        let pendingTrack = null;
+        let musicStarted = false;
+
+        // Voice Narration System
+        let voiceEnabled = true;
+        let voiceSpeed = 0.9;
+        let currentVoiceUtterance = null;
+
+        function initMusicSystem() {
+            const muteBtn = document.getElementById('muteBtn');
+            const volumeSlider = document.getElementById('volumeSlider');
+            const voiceBtn = document.getElementById('voiceBtn');
+
+            muteBtn.addEventListener('click', () => {
+                if (!musicStarted) {
+                    startMusicSystem();
+                }
+                toggleMute();
+            });
+            
+            volumeSlider.addEventListener('input', (e) => {
+                if (!musicStarted) {
+                    startMusicSystem();
+                }
+                currentVolume = e.target.value / 100;
+                if (currentAudio && !isMuted) {
+                    currentAudio.volume = currentVolume;
+                }
+            });
+
+            voiceBtn.addEventListener('click', toggleVoice);
+        }
+
+        function toggleVoice() {
+            voiceEnabled = !voiceEnabled;
+            const voiceBtn = document.getElementById('voiceBtn');
+            
+            if (voiceEnabled) {
+                voiceBtn.textContent = '🎙️ Voice: ON';
+                voiceBtn.classList.remove('muted');
+            } else {
+                voiceBtn.textContent = '🔇 Voice: OFF';
+                voiceBtn.classList.add('muted');
+                // Stop any currently playing voice
+                stopVoice();
+            }
+        }
+
+        function stopVoice() {
+            // Stop Web Speech API
+            if (window.speechSynthesis) {
+                window.speechSynthesis.cancel();
+            }
+            currentVoiceUtterance = null;
+            
+            // Stop ElevenLabs audio and clear queue
+            if (currentElevenLabsAudio) {
+                currentElevenLabsAudio.pause();
+                currentElevenLabsAudio.currentTime = 0;
+                currentElevenLabsAudio = null;
+            }
+            voiceQueue = []; // Clear any queued voices
+        }
+
+        // Character voice profiles
+        const characterVoices = {
+            narrator: {
+                pitch: 0.85,
+                rate: 0.9,
+                preferredVoices: ['Male', 'Daniel', 'Alex', 'Google US English Male']
+            },
+            thaxior: {
+                pitch: 0.6,  // Very low, creepy
+                rate: 0.85,  // Slow and menacing
+                preferredVoices: ['Male', 'Google UK English Male', 'Daniel']
+            },
+            entity: {
+                pitch: 0.7,  // Low and ominous
+                rate: 0.8,   // Slow and otherworldly
+                preferredVoices: ['Male', 'Google US English Male']
+            },
+            brynn: {
+                pitch: 1.1,  // Female, authoritative
+                rate: 0.95,
+                preferredVoices: ['Female', 'Samantha', 'Victoria', 'Google UK English Female']
+            },
+            luminara: {
+                pitch: 1.2,  // Warm, motherly
+                rate: 0.9,
+                preferredVoices: ['Female', 'Samantha', 'Karen', 'Google US English Female']
+            },
+            old_mara: {
+                pitch: 1.15, // Elderly female
+                rate: 0.85,  // Slower
+                preferredVoices: ['Female', 'Karen', 'Google UK English Female']
+            },
+            torvin: {
+                pitch: 0.8,  // Deep male, gruff
+                rate: 1.0,
+                preferredVoices: ['Male', 'Google US English Male']
+            },
+            firewalker_zen: {
+                pitch: 0.9,  // Calm, measured
+                rate: 0.85,
+                preferredVoices: ['Male', 'Google UK English Male']
+            },
+            elara: {
+                pitch: 1.05, // Mysterious female
+                rate: 0.95,
+                preferredVoices: ['Female', 'Victoria', 'Google UK English Female']
+            },
+            gale: {
+                pitch: 0.85, // Weathered warrior
+                rate: 0.95,
+                preferredVoices: ['Male', 'Daniel']
+            },
+            mira: {
+                pitch: 1.2,  // Cheerful halfling
+                rate: 1.05,  // Slightly faster
+                preferredVoices: ['Female', 'Samantha']
+            },
+            drow_leader: {
+                pitch: 0.9,  // Dark elf
+                rate: 0.9,
+                preferredVoices: ['Male', 'Google UK English Male']
+            }
+        };
+
+        function getVoiceForCharacter(characterName, allVoices) {
+            const profile = characterVoices[characterName] || characterVoices.narrator;
+            
+            // Try to find a matching voice based on preferences
+            for (const preference of profile.preferredVoices) {
+                const voice = allVoices.find(v => 
+                    v.name.includes(preference) || 
+                    (preference.includes('Female') && v.name.toLowerCase().includes('female')) ||
+                    (preference.includes('Male') && v.name.toLowerCase().includes('male'))
+                );
+                if (voice) return voice;
+            }
+            
+            // Fallback to any English voice
+            return allVoices.find(v => v.lang.startsWith('en')) || allVoices[0];
+        }
+
+        function detectSpeaker(text) {
+            // Detect character dialogue patterns
+            const lowerText = text.toLowerCase();
+            
+            // Check for specific character dialogue
+            if (text.includes("'We meet in the flesh, Nyx Hollow'") || 
+                text.includes("'Your mind is mine'") ||
+                text.includes("'Enough talk'") ||
+                text.includes("Thaxior")) {
+                return 'thaxior';
+            }
+            
+            if (text.includes("'Nyx, your mission is crucial'") || 
+                lowerText.includes('brynn ironvale') && text.includes("'")) {
+                return 'brynn';
+            }
+            
+            if (text.includes("'You saved my child, warlock'") || 
+                text.includes("'I am Luminara'")) {
+                return 'luminara';
+            }
+            
+            if (text.includes("'My favorite honey pastries'") ||
+                lowerText.includes('old mara') && text.includes("'")) {
+                return 'old_mara';
+            }
+            
+            if (text.includes("'Well fought!'") || 
+                lowerText.includes('torvin') && text.includes("'")) {
+                return 'torvin';
+            }
+            
+            if (text.includes("'Walk across without flinching'") ||
+                lowerText.includes('firewalker zen') && text.includes("'")) {
+                return 'firewalker_zen';
+            }
+            
+            if (text.includes("'Detect Magic'") && text.includes('Twenty gold pieces') ||
+                lowerText.includes('elara') && text.includes("'")) {
+                return 'elara';
+            }
+            
+            if (text.includes("'I faced a mind flayer once'") ||
+                lowerText.includes('gale') && text.includes("'")) {
+                return 'gale';
+            }
+            
+            if (text.includes("'On the house, hero'") ||
+                lowerText.includes('mira') && text.includes("'")) {
+                return 'mira';
+            }
+            
+            if (text.includes("'A surface dweller in the Runebound Depths'") ||
+                lowerText.includes('drow') && text.includes("'")) {
+                return 'drow_leader';
+            }
+            
+            // Check for Entity (Mental Realm)
+            if (text.includes('Nyx Hollow. Half-breed. Warlock.') ||
+                text.includes('Why do you resist?') ||
+                text.includes('become perfection') ||
+                text.includes('This changes nothing, Nyx Hollow')) {
+                return 'entity';
+            }
+            
+            // Default to narrator
+            return 'narrator';
+        }
+
+        function parseNarrationSegments(text) {
+            const segments = [];
+            const lines = text.split('\n\n'); // Split by paragraphs
+            
+            lines.forEach(line => {
+                if (line.trim().length === 0) return;
+                
+                // Check if line contains dialogue (single quotes)
+                const dialogueMatch = line.match(/'([^']+)'/);
+                
+                if (dialogueMatch) {
+                    // Split into parts: before quote, quote, after quote
+                    const parts = line.split(/'([^']+)'/);
+                    
+                    parts.forEach((part, idx) => {
+                        if (part.trim().length === 0) return;
+                        
+                        if (idx % 2 === 1) {
+                            // This is dialogue (inside quotes)
+                            const speaker = detectSpeaker(line);
+                            segments.push({ text: part, speaker: speaker });
+                        } else {
+                            // This is narration
+                            segments.push({ text: part, speaker: 'narrator' });
+                        }
+                    });
+                } else {
+                    // No dialogue, just narration
+                    const speaker = detectSpeaker(line);
+                    segments.push({ text: line, speaker: speaker });
+                }
+            });
+            
+            return segments;
+        }
+
+        function speakSegment(text, speaker, voices) {
+            const profile = characterVoices[speaker] || characterVoices.narrator;
+            
+            // Create speech utterance
+            const utterance = new SpeechSynthesisUtterance(text);
+            
+            // Apply character-specific settings
+            utterance.rate = profile.rate * voiceSpeed;
+            utterance.pitch = profile.pitch;
+            utterance.volume = 1.0;
+            
+            // Select appropriate voice
+            const voice = getVoiceForCharacter(speaker, voices);
+            if (voice) {
+                utterance.voice = voice;
+            }
+            
+            console.log(`Speaking as ${speaker}:`, text.substring(0, 50) + '...');
+            
+            // Speak!
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function speakNarration(text) {
+            if (!voiceEnabled) return;
+            
+            // Stop any currently playing narration
+            stopVoice();
+
+            // Check if this is a key moment with ElevenLabs voice
+            if (USE_ELEVENLABS) {
+                // Check if we have a voice sequence (multiple voices to play)
+                if (currentNarrationVoiceSequence && currentNarrationVoiceSequence.length > 0) {
+                    console.log(`🎙️ Playing voice sequence!`);
+                    playElevenLabsVoiceSequence(currentNarrationVoiceSequence);
+                    currentNarrationVoiceSequence = null;
+                    return;
+                }
+                
+                const voiceFile = getElevenLabsVoiceFile(text);
+                
+                // Reset context immediately after getting voice file
+                currentNarrationContext = null;
+                
+                if (voiceFile) {
+                    console.log(`🎙️ Playing ElevenLabs voice: ${voiceFile}`);
+                    playElevenLabsVoice(voiceFile);
+                    return; // Use ElevenLabs, skip Web Speech
+                }
+                
+                // Check if this is a composite narration (multiple parts)
+                // For entity dialogues with conclusion
+                if (text.includes("void begins to fracture") && text.includes("Time is running out")) {
+                    // This is an entity dialogue with conclusion
+                    // Play the dialogue-specific voice (the function already checked for it above)
+                    // The conclusion voice would need to play after, but we'll just use the main dialogue
+                    console.log('🎙️ Composite entity narration detected - using Web Speech for full text');
+                }
+                
+                // For Thaxior intro - check if it contains dialogue part
+                if (text.includes("figure steps from the shadows") && text.includes("We meet in the flesh")) {
+                    // Full composite - just play the intro
+                    console.log(`🎙️ Playing ElevenLabs voice: ${ELEVENLABS_VOICES['thaxior_intro']}`);
+                    playElevenLabsVoice(ELEVENLABS_VOICES['thaxior_intro']);
+                    return;
+                }
+                
+                // For stone door with subtle presence
+                if (text.includes("stone door") && text.includes("subtle presence")) {
+                    console.log(`🎙️ Playing ElevenLabs voice: ${ELEVENLABS_VOICES['stone_door_strength']}`);
+                    playElevenLabsVoice(ELEVENLABS_VOICES['stone_door_strength']);
+                    return;
+                }
+            }
+
+            // Fallback to Web Speech API with character voices
+            // Check if browser supports speech synthesis
+            if (!window.speechSynthesis) {
+                console.log('Speech synthesis not supported');
+                return;
+            }
+
+            // Get all available voices
+            const voices = window.speechSynthesis.getVoices();
+            if (voices.length === 0) {
+                console.log('No voices loaded yet');
+                return;
+            }
+
+            // Split text by dialogue vs narration
+            const segments = parseNarrationSegments(text);
+            
+            // Speak each segment with appropriate voice
+            let delay = 0;
+            segments.forEach((segment, index) => {
+                setTimeout(() => {
+                    speakSegment(segment.text, segment.speaker, voices);
+                }, delay);
+                
+                // Calculate delay for next segment (rough estimate)
+                delay += (segment.text.length / 15) * 1000; // ~15 chars per second
+            });
+        }
+
+        // Track the current narration context for voice mapping
+        let currentNarrationContext = null;
+        let currentNarrationVoiceSequence = null;
+
+        // Helper function to display narration with context for ElevenLabs voices
+        function displayNarrationWithContext(text, context = null, voiceSequence = null) {
+            console.log('🎬 displayNarrationWithContext called');
+            console.log('🎯 Context:', context);
+            console.log('🎵 Voice Sequence:', voiceSequence);
+            console.log('📝 Text:', text.substring(0, 100) + '...');
+            
+            // If voice sequence is provided, use that instead of context
+            if (voiceSequence && voiceSequence.length > 0) {
+                currentNarrationVoiceSequence = voiceSequence;
+            } else {
+                currentNarrationContext = context;
+            }
+            
+            displayNarration(text);
+            // DON'T reset context here - it needs to persist for the voice lookup!
+            // It will be reset in speakNarration after the voice file is determined
+        }
+
+        function getElevenLabsVoiceFile(text) {
+            console.log('🔍 getElevenLabsVoiceFile called');
+            console.log('📝 Text:', text.substring(0, 100) + '...');
+            console.log('🎯 Context:', currentNarrationContext);
+            
+            // If we have a context set, use it directly
+            if (currentNarrationContext && ELEVENLABS_VOICES[currentNarrationContext]) {
+                console.log(`✅ Using context-based voice: ${currentNarrationContext} -> ${ELEVENLABS_VOICES[currentNarrationContext]}`);
+                return ELEVENLABS_VOICES[currentNarrationContext];
+            }
+            
+            console.log('⚠️ No context match, trying text matching...');
+            
+            // Otherwise, try to match by text content (fallback)
+            // Main story
+            if (text.includes("You are Nyx Hollow, a half-elf warlock")) return ELEVENLABS_VOICES['start_game'];
+            if (text.includes("Brynn Ironvale") && text.includes("your mission is crucial")) return ELEVENLABS_VOICES['talk_brynn'];
+            if (text.includes("Gale Windrider") && text.includes("I faced a mind flayer")) return ELEVENLABS_VOICES['talk_gale'];
+            if (text.includes("Mira, the cheerful halfling")) return ELEVENLABS_VOICES['talk_mira'];
+            if (text.includes("step out of the Evening Star Inn")) return ELEVENLABS_VOICES['leave_inn'];
+            
+            // Sidequests
+            if (text.includes("Old Mara clutches") && text.includes("honey pastries")) return ELEVENLABS_VOICES['sidequest_wind'];
+            if (text.includes("Torvin Ironarm") && text.includes("massive biceps bulge")) return ELEVENLABS_VOICES['sidequest_strength'];
+            if (text.includes("Firewalker Zen") && text.includes("hot coals")) return ELEVENLABS_VOICES['sidequest_flame'];
+            if (text.includes("Elara Moonwhisper") && text.includes("Detect Magic")) return ELEVENLABS_VOICES['sidequest_detect'];
+            if (text.includes("street performer") && text.includes("marionette")) return ELEVENLABS_VOICES['sidequest_mage_hand'];
+            if (text.includes("shrine keeper") && text.includes("Light spell")) return ELEVENLABS_VOICES['sidequest_light'];
+            
+            // Locations
+            if (text.includes("leave the relative safety") && text.includes("Widow's Thicket")) return ELEVENLABS_VOICES['to_widows_thicket'];
+            if (text.includes("ancient structure half-buried")) return ELEVENLABS_VOICES['enter_structure'];
+            if (text.includes("subtle presence tugs")) return ELEVENLABS_VOICES['subtle_presence'];
+            if (text.includes("Detect Magic spell illuminates")) return ELEVENLABS_VOICES['find_grimoire_magic'];
+            if (text.includes("methodically search the endless shelves")) return ELEVENLABS_VOICES['find_grimoire_search'];
+            if (text.includes("search the shelves carefully") && text.includes("library keeps its secrets")) return ELEVENLABS_VOICES['grimoire_search_fail'];
+            if (text.includes("on a pedestal of dark stone") && text.includes("Absolute Prism")) return ELEVENLABS_VOICES['take_prism'];
+            if (text.includes("With the Absolute Prism secured")) return ELEVENLABS_VOICES['leave_athenaeum'];
+            if (text.includes("make your way back") && text.includes("Runestone Square")) return ELEVENLABS_VOICES['return_to_square'];
+            
+            // Obstacles
+            if (text.includes("summon flames to your fingertips") && text.includes("vines")) return ELEVENLABS_VOICES['vines_flame'];
+            if (text.includes("Channeling raw magical strength") && text.includes("vines")) return ELEVENLABS_VOICES['vines_strength'];
+            if (text.includes("invoke the wind spell") && text.includes("ravine") && text.includes("plummet")) return ELEVENLABS_VOICES['ravine_wind'];
+            if (text.includes("invoke the wind spell") && text.includes("more careful")) return ELEVENLABS_VOICES['ravine_wind_safe'];
+            if (text.includes("temporary strength spell surges") && text.includes("stone door")) return ELEVENLABS_VOICES['stone_door_strength'];
+            
+            // Baby Creature
+            if (text.includes("faint whimpering") && text.includes("luminescent creature")) return ELEVENLABS_VOICES['baby_creature_discovery'];
+            if (text.includes("summon a warm, gentle light") && text.includes("baby creature's eyes")) return ELEVENLABS_VOICES['baby_creature_light'];
+            if (text.includes("magnificent creature emerges") && text.includes("twice the size of a horse")) return ELEVENLABS_VOICES['luminara_appears'];
+            if (text.includes("turn away from the creature")) return ELEVENLABS_VOICES['baby_creature_leave'];
+            
+            // Drow
+            if (text.includes("Several dark elves emerge") && text.includes("Shadowheart Crystal")) return ELEVENLABS_VOICES['talk_to_drow'];
+            if (text.includes("Drow lead you deeper") && text.includes("massive chasm")) return ELEVENLABS_VOICES['drow_quest_intro'];
+            if (text.includes("Mage Hand spell") && text.includes("lever") && text.includes("Drow watch in amazement")) return ELEVENLABS_VOICES['drow_mage_hand'];
+            if (text.includes("summon powerful winds") && text.includes("dangling precariously")) return ELEVENLABS_VOICES['drow_wind'];
+            if (text.includes("use flames") && text.includes("levitates you across")) return ELEVENLABS_VOICES['drow_flame'];
+            if (text.includes("regain consciousness") && text.includes("underground realm")) return ELEVENLABS_VOICES['runebound_awakening'];
+            
+            // Entity - with conclusion detection
+            if (text.includes("clutch the Teleportation Stone") && text.includes("worked flawlessly")) return ELEVENLABS_VOICES['teleport_repeat'];
+            if (text.includes("Pain explodes in your skull") && text.includes("falling into an endless void")) return ELEVENLABS_VOICES['teleport_out'];
+            if (text.includes("void pulses with malevolent energy") && text.includes("tadpole writhes")) return ELEVENLABS_VOICES['entity_initial_contact'];
+            if (text.includes("Nyx Hollow. Half-breed. Warlock.") && text.includes("Why do you resist")) return ELEVENLABS_VOICES['entity_encounter'];
+            
+            // Entity dialogue responses - these have conclusion appended
+            // Match by the UNIQUE starting phrase of each
+            if (text.includes("Your voice rings with conviction")) {
+                return ELEVENLABS_VOICES['entity_determined'];
+            }
+            if (text.includes("Rage fills you") && text.includes("parasite")) {
+                return ELEVENLABS_VOICES['entity_aggressive'];
+            }
+            if (text.includes("Panic seizes you") && text.includes("Get out of my head")) {
+                return ELEVENLABS_VOICES['entity_frightened'];
+            }
+            if (text.includes("'Why?' you ask") && text.includes("forcing yourself to think clearly")) {
+                return ELEVENLABS_VOICES['entity_curious'];
+            }
+            
+            // Mind Flayer Ship obstacles
+            if (text.includes("townsfolk watch in solemn silence") && text.includes("mind flayer ship")) return ELEVENLABS_VOICES['to_ship'];
+            
+            // Ship wall flame - exact match
+            if (text.includes("pulsing organic wall recoils") && text.includes("It shrieks - actually shrieks")) return ELEVENLABS_VOICES['ship_wall_flame'];
+            
+            // Ship wall strength
+            if (text.includes("Enhanced strength flowing") && text.includes("punch straight through")) return ELEVENLABS_VOICES['ship_wall_strength'];
+            
+            // Ship tendrils
+            if (text.includes("Writhing tendrils lash") && text.includes("meet them with fire")) return ELEVENLABS_VOICES['ship_tendrils_flame'];
+            if (text.includes("grab the writhing tendrils") && text.includes("rip them apart")) return ELEVENLABS_VOICES['ship_tendrils_strength'];
+            if (text.includes("Powerful winds blast from your outstretched hands") && text.includes("slamming the tendrils")) return ELEVENLABS_VOICES['ship_tendrils_wind'];
+            
+            // Stone door - this one has subtle_presence appended!
+            if (text.includes("temporary strength spell surges") && text.includes("stone door") && text.includes("subtle presence")) {
+                // Composite narration - just return the stone door voice
+                return ELEVENLABS_VOICES['stone_door_strength'];
+            }
+            
+            // Thaxior encounter - split into intro and dialogue parts
+            if (text.includes("figure steps from the shadows") && text.includes("mind flayer") && text.includes("I am Thaxior")) {
+                // Full intro with dialogue
+                return ELEVENLABS_VOICES['thaxior_intro'];
+            }
+            
+            // Thaxior just dialogue part
+            if (text.includes("We meet in the flesh") && text.includes("feast upon them") && !text.includes("figure steps")) {
+                return ELEVENLABS_VOICES['thaxior_dialogue'];
+            }
+            
+            if (text.includes("made a mistake showing yourself") && text.includes("Defiance")) return ELEVENLABS_VOICES['thaxior_defiant'];
+            if (text.includes("Why reveal yourself") && text.includes("Strategic thinking")) return ELEVENLABS_VOICES['thaxior_cautious'];
+            if (text.includes("destroy everything you are") && text.includes("delicious")) return ELEVENLABS_VOICES['thaxior_aggressive'];
+            if (text.includes("once something else") && text.includes("What I was died long ago")) return ELEVENLABS_VOICES['thaxior_understanding'];
+            if (text.includes("Enough talk") && text.includes("mind is MINE")) return ELEVENLABS_VOICES['psionic_assault_trigger'];
+            
+            // Blessed Path
+            if (text.includes("Mother's Blessing flares") && text.includes("perfect shield")) return ELEVENLABS_VOICES['blessed_defense'];
+            if (text.includes("summon flames without hesitation") && text.includes("precise fireball")) return ELEVENLABS_VOICES['blessed_kill_flame'];
+            if (text.includes("strength spell surges") && text.includes("grab its elongated skull")) return ELEVENLABS_VOICES['blessed_kill_strength'];
+            if (text.includes("summon powerful winds") && text.includes("ship itself consumes it")) return ELEVENLABS_VOICES['blessed_kill_wind'];
+            if (text.includes("draw your weapon") && text.includes("face-to-face, as warriors")) return ELEVENLABS_VOICES['blessed_kill_melee'];
+            
+            // Psychic Combat
+            if (text.includes("psychic assault hits with DEVASTATING") && text.includes("SUBMIT")) return ELEVENLABS_VOICES['psionic_combat_initiation'];
+            if (text.includes("ROUND 1") && text.includes("shadow looms")) return ELEVENLABS_VOICES['psionic_round_1_intro'];
+            if (text.includes("ROUND 2") && text.includes("counterattacks with renewed fury")) return ELEVENLABS_VOICES['psionic_round_2_intro'];
+            if (text.includes("ROUND 3") && text.includes("weakening")) return ELEVENLABS_VOICES['psionic_round_3_intro'];
+            
+            // Psychic Attacks - Flame
+            if (text.includes("Flames of pure mental energy erupt")) return ELEVENLABS_VOICES['psychic_flame_round1'];
+            if (text.includes("intensify the flames") && text.includes("inferno of thought")) return ELEVENLABS_VOICES['psychic_flame_round2'];
+            if (text.includes("final surge of purifying fire")) return ELEVENLABS_VOICES['psychic_flame_round3'];
+            
+            // Psychic Attacks - Wind
+            if (text.includes("Psychic winds howl")) return ELEVENLABS_VOICES['psychic_wind_round1'];
+            if (text.includes("winds intensify into a mental hurricane")) return ELEVENLABS_VOICES['psychic_wind_round2'];
+            if (text.includes("devastating tornado of pure thought")) return ELEVENLABS_VOICES['psychic_wind_round3'];
+            
+            // Psychic Attacks - Strength
+            if (text.includes("willpower manifests as crushing")) return ELEVENLABS_VOICES['psychic_strength_round1'];
+            if (text.includes("press the assault") && text.includes("mental strength overwhelming")) return ELEVENLABS_VOICES['psychic_strength_round2'];
+            if (text.includes("final exertion of pure will") && text.includes("CRUSH")) return ELEVENLABS_VOICES['psychic_strength_round3'];
+            
+            // Psychic Attacks - Light
+            if (text.includes("Brilliant light blazes from your essence")) return ELEVENLABS_VOICES['psychic_light_round1'];
+            if (text.includes("light intensifies") && text.includes("PURGED")) return ELEVENLABS_VOICES['psychic_light_round2'];
+            if (text.includes("supernova of pure, cleansing light")) return ELEVENLABS_VOICES['psychic_light_round3'];
+            
+            // Psychic Attacks - Detect Magic
+            if (text.includes("magical detection pierces")) return ELEVENLABS_VOICES['psychic_detect_round1'];
+            if (text.includes("continue exploiting every vulnerability")) return ELEVENLABS_VOICES['psychic_detect_round2'];
+            if (text.includes("mapped every weakness") && text.includes("shatters like glass")) return ELEVENLABS_VOICES['psychic_detect_round3'];
+            
+            // Psychic Attacks - Mage Hand
+            if (text.includes("Spectral hands materialize")) return ELEVENLABS_VOICES['psychic_mage_hand_round1'];
+            if (text.includes("More hands emerge, dozens")) return ELEVENLABS_VOICES['psychic_mage_hand_round2'];
+            if (text.includes("thousand phantom hands converge")) return ELEVENLABS_VOICES['psychic_mage_hand_round3'];
+            
+            // Psychic Combat Resolution
+            if (text.includes("psychic form dissolves") && text.includes("defenseless. Broken")) return ELEVENLABS_VOICES['psionic_shatter'];
+            if (text.includes("approach the broken mind flayer") && text.includes("won't become a monster")) return ELEVENLABS_VOICES['final_kill_merciful'];
+            if (text.includes("deserves no mercy") && text.includes("make sure it feels")) return ELEVENLABS_VOICES['final_kill_vengeful'];
+            if (text.includes("step over the mind flayer's broken form") && text.includes("die here, alone")) return ELEVENLABS_VOICES['final_kill_leave'];
+            if (text.includes("examine the mind flayer closely") && text.includes("Knowledge")) return ELEVENLABS_VOICES['final_kill_study'];
+            if (text.includes("final surge of willpower") && text.includes("shatter Thaxior")) return ELEVENLABS_VOICES['thaxior_victory_normal'];
+            if (text.includes("Luminara's blessing flares") && text.includes("clear")) return ELEVENLABS_VOICES['thaxior_victory_blessed'];
+            
+            // Final
+            if (text.includes("stand before the Elder Brain") && text.includes("moment of decision")) return ELEVENLABS_VOICES['final_choice'];
+            
+            // Endings
+            if (text.includes("raise the Absolute Prism") && text.includes("Redeemer")) return ELEVENLABS_VOICES['ending_redeemer'];
+            if (text.includes("Against all wisdom") && text.includes("grasp the Elder Brain")) return ELEVENLABS_VOICES['ending_corrupted'];
+            if (text.includes("open The Ninth Grimoire") && text.includes("Ascendant")) return ELEVENLABS_VOICES['ending_ascendant'];
+            
+            return null; // No ElevenLabs voice for this narration
+        }
+
+        // Track currently playing ElevenLabs audio
+        let currentElevenLabsAudio = null;
+        let voiceQueue = [];
+
+        function playElevenLabsVoice(filename) {
+            try {
+                // Stop any currently playing ElevenLabs audio
+                if (currentElevenLabsAudio) {
+                    currentElevenLabsAudio.pause();
+                    currentElevenLabsAudio.currentTime = 0;
+                    currentElevenLabsAudio = null;
+                }
+                
+                // Create and play new audio
+                const audio = new Audio(filename);
+                audio.volume = 1.0;
+                currentElevenLabsAudio = audio;
+                
+                // Clear reference when audio ends
+                audio.addEventListener('ended', () => {
+                    if (currentElevenLabsAudio === audio) {
+                        currentElevenLabsAudio = null;
+                    }
+                    // Check if there are more voices in queue
+                    if (voiceQueue.length > 0) {
+                        const nextVoice = voiceQueue.shift();
+                        console.log(`🎙️ Playing queued voice: ${nextVoice}`);
+                        playElevenLabsVoice(nextVoice);
+                    }
+                });
+                
+                audio.play().catch(err => {
+                    console.error('Failed to play ElevenLabs voice:', err);
+                    console.log('Falling back to Web Speech');
+                    currentElevenLabsAudio = null;
+                });
+            } catch (error) {
+                console.error('Error creating audio:', error);
+            }
+        }
+
+        // Play multiple voices in sequence
+        function playElevenLabsVoiceSequence(filenames) {
+            if (!filenames || filenames.length === 0) return;
+            
+            console.log(`🎙️ Playing voice sequence: ${filenames.join(' -> ')}`);
+            
+            // Clear any existing queue
+            voiceQueue = [];
+            
+            // Play first voice immediately
+            const firstVoice = filenames[0];
+            
+            // Queue the rest
+            if (filenames.length > 1) {
+                voiceQueue = filenames.slice(1);
+            }
+            
+            playElevenLabsVoice(firstVoice);
+        }
+
+        function startMusicSystem() {
+            if (musicStarted) return;
+            musicStarted = true;
+            
+            // Hide the hint
+            const hint = document.getElementById('musicStartHint');
+            if (hint) hint.style.display = 'none';
+            
+            // Play the starting location music
+            const startTrack = gameState.currentLocation || 'evening_star_inn';
+            playMusic(startTrack, false);
+        }
+
+        function toggleMute() {
+            isMuted = !isMuted;
+            const muteBtn = document.getElementById('muteBtn');
+            
+            if (isMuted) {
+                muteBtn.textContent = '🔇 Unmute';
+                muteBtn.classList.add('muted');
+                if (currentAudio) {
+                    currentAudio.volume = 0;
+                }
+            } else {
+                muteBtn.textContent = '🔊 Mute';
+                muteBtn.classList.remove('muted');
+                if (currentAudio) {
+                    currentAudio.volume = currentVolume;
+                }
+            }
+        }
+
+        function playMusic(locationKey, fadeIn = true) {
+            if (!musicStarted) return; // Don't play until user starts music
+            
+            const trackUrl = musicTracks[locationKey];
+            
+            if (!trackUrl || trackUrl === null) {
+                console.log('No music configured for:', locationKey);
+                return;
+            }
+
+            // If same track is already playing, don't restart
+            if (currentAudio && currentAudio.src && currentAudio.src.includes(trackUrl.split('/').pop())) {
+                console.log('Same track already playing');
+                return;
+            }
+
+            console.log('Playing music for:', locationKey, '- URL:', trackUrl);
+
+            // Fade out current track
+            if (currentAudio && !currentAudio.paused) {
+                const fadeOutAudio = currentAudio;
+                let fadeOutVolume = isMuted ? 0 : currentVolume;
+                const fadeOutInterval = setInterval(() => {
+                    if (fadeOutVolume > 0.05) {
+                        fadeOutVolume -= 0.05;
+                        fadeOutAudio.volume = Math.max(0, fadeOutVolume);
+                    } else {
+                        fadeOutAudio.pause();
+                        fadeOutAudio.currentTime = 0;
+                        clearInterval(fadeOutInterval);
+                    }
+                }, 50);
+            }
+
+            // Create new audio
+            currentAudio = new Audio(trackUrl);
+            currentAudio.loop = true;
+            currentAudio.volume = isMuted ? 0 : (fadeIn ? 0.1 : currentVolume);
+
+            // Add error event listener
+            currentAudio.addEventListener('error', (e) => {
+                console.error('Audio error:', e);
+                console.error('Failed to load:', trackUrl);
+                console.error('Error code:', currentAudio.error?.code);
+                console.error('Error message:', currentAudio.error?.message);
+            });
+
+            // Play
+            currentAudio.play().then(() => {
+                console.log('✓ Music started successfully:', locationKey);
+                
+                // Fade in new track
+                if (fadeIn && !isMuted) {
+                    let fadeInVolume = 0.1;
+                    const fadeInInterval = setInterval(() => {
+                        if (fadeInVolume < currentVolume) {
+                            fadeInVolume += 0.05;
+                            if (fadeInVolume > currentVolume) fadeInVolume = currentVolume;
+                            currentAudio.volume = fadeInVolume;
+                        } else {
+                            clearInterval(fadeInInterval);
+                        }
+                    }, 50);
+                }
+            }).catch(err => {
+                console.error('✗ Failed to play music:', err);
+                console.error('Track URL:', trackUrl);
+            });
+        }
+
+        // Game State
+        const gameState = {
+            currentLocation: 'evening_star_inn',
+            inventory: [],
+            spells: [],
+            flags: {
+                talked_to_brynn: false,
+                has_flame_spell: false,
+                has_wind_spell: false,
+                has_strength_spell: false,
+                has_detect_magic: false,
+                has_mage_hand: false,
+                has_light_spell: false,
+                has_absolute_prism: false,
+                has_ninth_grimoire: false,
+                has_teleportation_stone: false,
+                has_mothers_blessing: false,
+                vines_cleared: false,
+                ravine_crossed: false,
+                stone_door_opened: false,
+                fell_into_pit: false,
+                helped_baby_creature: false,
+                completed_drow_quest: false,
+                encountered_entity: false,
+                defeated_mind_flayer: false,
+                game_ended: false,
+                warned_final_area: false
+            },
+            gameOver: false,
+            ending: null
+        };
+
+        // Location Definitions
+        const locations = {
+            evening_star_inn: {
+                name: "The Evening Star Inn",
+                description: "A warm, bustling inn filled with heroes resting between missions. The smell of roasted meat and ale fills the air. Lanterns cast a golden glow across worn wooden tables where adventurers share tales of battle against the mind flayer threat.",
+                actions: [
+                    { id: 'talk_brynn', text: 'Talk to Brynn Ironvale', condition: () => !gameState.flags.talked_to_brynn },
+                    { id: 'talk_gale', text: 'Chat with Gale Windrider (retired adventurer)', condition: () => true },
+                    { id: 'talk_mira', text: 'Speak with Mira the Barkeep', condition: () => true },
+                    { id: 'leave_inn', text: 'Leave the Inn and head to Runestone Square', condition: () => gameState.flags.talked_to_brynn }
+                ]
+            },
+            runestone_square: {
+                name: "Runestone Square",
+                description: "A peaceful town square with ancient runestones at its center. Townsfolk go about their daily business, though worry lines their faces. Market stalls line the cobblestone streets. You can feel the weight of the mind flayer threat even in this serene place.",
+                actions: [
+                    { id: 'sidequest_wind', text: "Help Old Mara retrieve her favorite pastry", condition: () => !gameState.flags.has_wind_spell, required: true },
+                    { id: 'sidequest_strength', text: "Challenge Torvin Ironarm to arm wrestling", condition: () => !gameState.flags.has_strength_spell, required: true },
+                    { id: 'sidequest_flame', text: "Participate in Firewalker Zen's hot coal trial", condition: () => !gameState.flags.has_flame_spell, required: true },
+                    { id: 'sidequest_detect', text: "Purchase Detect Magic scroll from Elara Moonwhisper", condition: () => !gameState.flags.has_detect_magic, optional: true },
+                    { id: 'sidequest_mage_hand', text: "Help the street performer fix his broken puppet strings", condition: () => !gameState.flags.has_mage_hand, optional: true },
+                    { id: 'sidequest_light', text: "Light candles for the shrine keeper in the dark chapel", condition: () => !gameState.flags.has_light_spell, optional: true },
+                    { id: 'to_widows_thicket', text: 'Journey to Widow\'s Thicket (advance the story)', condition: () => gameState.flags.has_flame_spell && gameState.flags.has_strength_spell && gameState.flags.has_wind_spell },
+                    { id: 'to_ship', text: 'Head to the Mind Flayer Ship (final location)', condition: () => gameState.flags.has_absolute_prism },
+                    { id: 'return_inn', text: 'Return to the Evening Star Inn', condition: () => true }
+                ]
+            },
+            widows_thicket: {
+                name: "Widow's Thicket",
+                description: "A dark forest choked with ancient vines and moss. The air is thick and humid. Twisted trees loom overhead, their branches forming a canopy that blocks out most sunlight. Strange sounds echo in the distance.",
+                actions: [
+                    { id: 'obstacle_vines', text: 'Clear the thick vines blocking your path', condition: () => !gameState.flags.vines_cleared },
+                    { id: 'help_baby_creature', text: 'Investigate the faint whimpering sound nearby', condition: () => !gameState.flags.helped_baby_creature && gameState.flags.vines_cleared },
+                    { id: 'obstacle_ravine', text: 'Cross the wide ravine ahead', condition: () => gameState.flags.vines_cleared && !gameState.flags.ravine_crossed },
+                    { id: 'enter_structure', text: 'Enter the abandoned structure', condition: () => gameState.flags.vines_cleared && gameState.flags.ravine_crossed },
+                    { id: 'return_to_square', text: 'Return to Runestone Square', condition: () => true }
+                ]
+            },
+            runebound_depths: {
+                name: "The Runebound Depths",
+                description: "An underground realm of ethereal beauty and danger. Bioluminescent fungi cast an eerie glow across crystalline caverns. Drow cities carved into obsidian cliffs stretch into the darkness. The air hums with ancient magic.",
+                actions: [
+                    { id: 'talk_to_drow', text: 'Speak with the Drow patrol', condition: () => !gameState.flags.completed_drow_quest },
+                    { id: 'drow_quest', text: 'Begin the Drow\'s task', condition: () => gameState.flags.talked_to_drow && !gameState.flags.completed_drow_quest },
+                    { id: 'use_teleportation_stone', text: 'Use the Teleportation Stone to escape', condition: () => gameState.flags.has_teleportation_stone }
+                ]
+            },
+            mental_realm: {
+                name: "The Abyss of Infinite Space",
+                description: "An endless void where reality fractures. Stars that aren't stars flicker in impossible distances. You float in nothingness, your consciousness the only anchor. This is the mental realm, where the curse's source dwells.",
+                actions: [
+                    { id: 'entity_dialogue', text: 'Confront the mysterious entity', condition: () => !gameState.flags.encountered_entity }
+                ]
+            },
+            obsidian_athenaeum: {
+                name: "The Obsidian Athenaeum",
+                description: "An ancient tomb-like library carved from black obsidian. Dusty shelves tower to impossibly high ceilings. Arcane symbols glow faintly on the walls. The air tastes of old magic and forgotten knowledge.",
+                actions: [
+                    { id: 'obstacle_stone_door', text: 'Force open the heavy stone door', condition: () => !gameState.flags.stone_door_opened },
+                    { id: 'find_grimoire_magic', text: 'Use Detect Magic to locate hidden artifacts', condition: () => gameState.flags.stone_door_opened && gameState.flags.has_detect_magic && !gameState.flags.has_ninth_grimoire },
+                    { id: 'find_grimoire_search', text: 'Search the shelves thoroughly', condition: () => gameState.flags.stone_door_opened && !gameState.flags.has_ninth_grimoire },
+                    { id: 'take_prism', text: 'Take the Absolute Prism from its pedestal', condition: () => gameState.flags.stone_door_opened && !gameState.flags.has_absolute_prism },
+                    { id: 'leave_athenaeum', text: 'Leave the Athenaeum and return to Runestone Square', condition: () => true }
+                ]
+            },
+            mind_flayer_ship: {
+                name: "The Mind Flayer Ship",
+                description: "An otherworldly vessel that defies comprehension. The walls pulse with organic matter, breathing in a sickening rhythm. Biomechanical tendrils snake along the corridors. The air is thick with psionic energy. You can feel the curse's source ahead.",
+                actions: [
+                    { id: 'mind_flayer_encounter', text: 'A figure emerges from the shadows ahead...', condition: () => !gameState.flags.defeated_mind_flayer },
+                    { id: 'ship_obstacle_wall', text: 'Deal with the pulsing organic wall', condition: () => gameState.flags.defeated_mind_flayer && !gameState.flags.wall_cleared },
+                    { id: 'ship_obstacle_tendrils', text: 'Clear the writhing tendrils ahead', condition: () => gameState.flags.wall_cleared && !gameState.flags.tendrils_cleared },
+                    { id: 'final_choice', text: 'Confront the Elder Brain - the source of the curse', condition: () => gameState.flags.wall_cleared && gameState.flags.tendrils_cleared }
+                ]
+            }
+        };
+
+        // Initialize game
+        function initGame() {
+            initMusicSystem();
+            
+            // Load voices for speech synthesis
+            if (window.speechSynthesis) {
+                // Some browsers need this to load voices
+                window.speechSynthesis.getVoices();
+                window.speechSynthesis.onvoiceschanged = () => {
+                    window.speechSynthesis.getVoices();
+                };
+            }
+            
+            updateUI();
+            performAction('start_game');
+            // Music will start when user clicks mute button or volume slider
+        }
+
+        // Update UI
+        function updateUI() {
+            // Update location name
+            document.getElementById('locationName').textContent = locations[gameState.currentLocation].name;
+
+            // Change music based on location
+            playMusic(gameState.currentLocation);
+
+            // Update inventory
+            const inventoryContainer = document.getElementById('inventoryItems');
+            inventoryContainer.innerHTML = '';
+            
+            if (gameState.inventory.length === 0 && gameState.spells.length === 0) {
+                inventoryContainer.innerHTML = '<span class="inventory-item">Empty</span>';
+            } else {
+                gameState.inventory.forEach(item => {
+                    const itemEl = document.createElement('span');
+                    itemEl.className = 'inventory-item';
+                    itemEl.textContent = item;
+                    inventoryContainer.appendChild(itemEl);
+                });
+                
+                gameState.spells.forEach(spell => {
+                    const spellEl = document.createElement('span');
+                    spellEl.className = 'inventory-item spell-item';
+                    spellEl.textContent = spell;
+                    inventoryContainer.appendChild(spellEl);
+                });
+            }
+
+            // Update actions
+            updateActions();
+        }
+
+        // Update available actions
+        function updateActions() {
+            const actionsContainer = document.getElementById('actionButtons');
+            actionsContainer.innerHTML = '';
+
+            const currentLoc = locations[gameState.currentLocation];
+            
+            currentLoc.actions.forEach(action => {
+                if (action.condition()) {
+                    const button = document.createElement('button');
+                    button.className = 'action-btn';
+                    
+                    // Add required or optional class if specified
+                    if (action.required) {
+                        button.className += ' required';
+                    } else if (action.optional) {
+                        button.className += ' optional';
+                    }
+                    
+                    button.textContent = action.text;
+                    button.onclick = () => performAction(action.id);
+                    actionsContainer.appendChild(button);
+                }
+            });
+        }
+
+        // Call AI for narration
+        async function getNarration(context) {
+            if (!USE_BACKEND) {
+                // Use placeholder narration when backend is disabled
+                return getPlaceholderNarration(context);
+            }
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/narrate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        context: JSON.stringify({
+                            location: gameState.currentLocation,
+                            locationDescription: locations[gameState.currentLocation].description,
+                            hasSpells: gameState.spells,
+                            hasItems: gameState.inventory,
+                            completedFlags: Object.keys(gameState.flags).filter(k => gameState.flags[k])
+                        }),
+                        action: context
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success && data.narration) {
+                    console.log('✓ AI narration received from backend');
+                    return data.narration;
+                } else if (data.fallback) {
+                    console.log('⚠️ Backend returned fallback, using placeholder');
+                    return getPlaceholderNarration(context);
+                }
+                
+                return data.narration || getPlaceholderNarration(context);
+            } catch (error) {
+                console.error('Backend API Error:', error);
+                console.log('⚠️ Falling back to placeholder narration');
+                return getPlaceholderNarration(context);
+            }
+        }
+
+        // Placeholder narration for testing without API
+        function getPlaceholderNarration(context) {
+            const narratives = {
+                start_game: "You are Nyx Hollow, a half-elf warlock of considerable power. The weight of your mission sits heavy on your shoulders - locate the Absolute Prism and use it to end the mind flayer curse that threatens all of Waterdeep. You stand in the Evening Star Inn, surrounded by fellow heroes preparing for battle. The air buzzes with tension and determination.",
+                
+                talk_brynn: "Brynn Ironvale, the stern elf druid, beckons you over. Her emerald eyes pierce through you as she speaks: 'Nyx, your mission is crucial. The Absolute Prism is hidden in the Obsidian Athenaeum, deep within Widow's Thicket. Find it, take it to the mind flayer ship, and end this curse. The fate of Waterdeep rests on your shoulders. Be careful - the power you seek can corrupt as easily as it can save.'",
+                
+                talk_gale: "Gale Windrider, a weathered human warrior with scars telling stories of countless battles, regales you with tales. 'I faced a mind flayer once,' he says, his voice grave. 'Felt its tentacles probing my mind. Nearly lost myself. You\'re braver than I, taking this mission. May the gods watch over you, Nyx.'",
+                
+                talk_mira: "Mira, the cheerful halfling barkeep, slides you a warm drink. 'On the house, hero,' she says with a wink. 'Whatever happens out there, know you\'ve got a home here at the Evening Star. We're all counting on you. Give those mind flayers hell for us, will you?'",
+
+                leave_inn: "You step out of the Evening Star Inn into the cool night air. The streets of Waterdeep stretch before you, leading toward Runestone Square. Stars glitter overhead, but you know darkness lurks beneath the surface of this city. Your quest begins in earnest.",
+
+                // Runestone Square sidequests
+                sidequest_wind: "Old Mara clutches your sleeve desperately. 'My favorite honey pastries from Delvin's bakery! These old bones can\'t make the walk anymore.' You retrieve the pastries, and in gratitude, she teaches you an ancient wind spell passed down through her family. 'May the winds carry you to victory, dear,' she says warmly.",
+
+                sidequest_strength: "Torvin Ironarm's massive biceps bulge as he challenges you. The contest is fierce - his strength is legendary. But you dig deep, channeling your warlock powers, and finally slam his arm down. He laughs heartily. 'Well fought! Here, take this enchantment - temporary strength beyond mortal limits. Use it wisely, Nyx.'",
+
+                sidequest_flame: "Firewalker Zen gestures to the bed of hot coals. 'Walk across without flinching, and master the flame,' he intones. You take a breath and step forward. The heat sears your feet, but you push through, focusing your will. By the time you reach the other side, flames dance at your fingertips. You've learned the fireball spell.",
+
+                sidequest_detect: "Elara Moonwhisper, a mysterious tiefling mage, offers you a scroll from her collection. 'Detect Magic - essential for any wise adventurer. Twenty gold pieces.' You hand over the coin, and she teaches you the spell. 'Hidden things shall reveal themselves to you now, Nyx.'",
+
+                sidequest_mage_hand: "A street performer desperately gestures at his marionette - the strings are tangled beyond hope. You offer to help, and as you carefully work through the knots, he teaches you the Mage Hand spell. 'With this, you can manipulate objects from afar. May it serve you well, friend.'",
+
+                sidequest_light: "The shrine keeper, an elderly gnome, struggles in the pitch-black chapel. 'These old eyes can\'t see in the dark anymore,' she sighs. You light the candles one by one, and in gratitude, she shares her knowledge of the Light spell. 'May this illumination guide you through darkness, Nyx Hollow.'",
+
+                talk_to_drow: "Several dark elves emerge from the shadows, their white hair stark against obsidian skin. They regard you with suspicion, crossbows trained on your chest. 'A surface dweller in the Runebound Depths,' their leader says, voice sharp as crystal. 'You fell through. We saw. If you want our help returning to the surface, you must earn it. Our sacred Shadowheart Crystal has been stolen. Retrieve it, and we will give you a way home.'",
+
+                teleport_out: "You clutch the Teleportation Stone and channel your will into it. The obsidian orb grows hot, then blazes with purple light. The caverns of the Runebound Depths blur and fade. When your vision clears, you\'re standing before the Obsidian Athenaeum.\n\nBut something is wrong. Pain explodes in your skull. You collapse to your knees, clutching your head as the mind flayer curse surges. Your vision goes black, and you feel yourself falling into an endless void...",
+
+                to_widows_thicket: "You leave the relative safety of Runestone Square behind. The path to Widow's Thicket grows darker with each step. Ancient trees loom ahead, their gnarled branches reaching like skeletal fingers. The air grows thick and oppressive. Your journey to find the Absolute Prism has truly begun.",
+
+                // Widow's Thicket obstacles - will vary based on spell used
+                
+                enter_structure: "Pushing through the final barrier, you discover an ancient structure half-buried in moss and vines. Its obsidian walls gleam faintly in the dim light filtering through the canopy. This is it - the Obsidian Athenaeum. The entrance yawns before you like a dark mouth, promising secrets and dangers within.",
+
+                // Obsidian Athenaeum
+                obstacle_stone_door: "Your chosen spell proves effective. The massive stone door groans and shifts, revealing the depths of the Athenaeum beyond. Ancient dust swirls in the air, disturbed for the first time in centuries.",
+
+                subtle_presence: "As you move deeper into the Athenaeum, a subtle presence tugs at the edge of your awareness. Something powerful lies hidden here, but where? Your senses tingle with arcane energy, pulling you toward something beyond the obvious.",
+
+                find_grimoire_magic: "Your Detect Magic spell illuminates the chamber in ethereal light. One shelf pulses with intense arcane energy - there! Behind a false panel, you discover The Ninth Grimoire, its cover inscribed with runes of power and control. This ancient tome contains the ritual to master cursed magic without being consumed by it.",
+
+                find_grimoire_search: "You methodically search the endless shelves, running your fingers along ancient spines. After what feels like hours, you notice a shelf that seems... wrong. Pressing a hidden mechanism, a false panel slides away, revealing The Ninth Grimoire. Its pages hum with power - a ritual to control cursed magic.",
+
+                take_prism: "There, on a pedestal of dark stone, rests the Absolute Prism. The githyanki artifact shimmers with otherworldly energy, its geometric facets catching light that doesn\'t seem to exist. As you grasp it, you feel its power - protection from the mind flayer curse, and the potential to contain it. The weight of your mission becomes real.",
+
+                leave_athenaeum: "With the Absolute Prism secured, you make your way back through Widow's Thicket. The forest seems less threatening now, the path clearer. You return to Runestone Square, the artifact pulsing gently against your chest. The final confrontation awaits.",
+
+                to_ship: "The townsfolk watch in solemn silence as you head toward the mind flayer ship. This is it - the moment everything has led to. The alien vessel looms ahead, its organic architecture both fascinating and horrifying. You steel yourself and approach the entrance.",
+
+                // Mind Flayer Ship obstacles
+                
+                final_choice: "You stand before the Elder Brain - a massive, pulsating sphere of neural tissue floating in brine. Psychic energy radiates from it in waves. This is the source of the mind flayer curse. The Absolute Prism grows hot in your hand, resonating with the cursed power before you. The moment of decision has arrived. What will you do with this terrible power?",
+
+                // Endings will be handled separately
+            };
+
+            return narratives[context] || "The adventure continues...";
+        }
+
+        // Display narration
+        function displayNarration(text) {
+            const narrativeEl = document.getElementById('narrativeText');
+            narrativeEl.innerHTML = `<span class="loading">The Dungeon Master speaks...</span>`;
+            
+            setTimeout(() => {
+                narrativeEl.textContent = text;
+                
+                // Speak the narration
+                speakNarration(text);
+            }, 500);
+        }
+
+        // Perform action
+        async function performAction(actionId) {
+            // Prevent actions if game is over
+            if (gameState.gameOver) return;
+
+            let context = actionId;
+            let shouldGetNarration = true;
+
+            // Handle specific actions
+            switch(actionId) {
+                case 'start_game':
+                    context = 'start_game';
+                    break;
+
+                case 'talk_brynn':
+                    gameState.flags.talked_to_brynn = true;
+                    context = 'talk_brynn';
+                    break;
+
+                case 'talk_gale':
+                    context = 'talk_gale';
+                    break;
+
+                case 'talk_mira':
+                    context = 'talk_mira';
+                    break;
+
+                case 'leave_inn':
+                    gameState.currentLocation = 'runestone_square';
+                    context = 'leave_inn';
+                    break;
+
+                case 'sidequest_wind':
+                    gameState.flags.has_wind_spell = true;
+                    gameState.spells.push('Wind Spell');
+                    context = 'sidequest_wind';
+                    break;
+
+                case 'sidequest_strength':
+                    gameState.flags.has_strength_spell = true;
+                    gameState.spells.push('Strength Spell');
+                    context = 'sidequest_strength';
+                    break;
+
+                case 'sidequest_flame':
+                    gameState.flags.has_flame_spell = true;
+                    gameState.spells.push('Flame Spell');
+                    context = 'sidequest_flame';
+                    break;
+
+                case 'sidequest_detect':
+                    gameState.flags.has_detect_magic = true;
+                    gameState.spells.push('Detect Magic');
+                    context = 'sidequest_detect';
+                    break;
+
+                case 'sidequest_mage_hand':
+                    gameState.flags.has_mage_hand = true;
+                    gameState.spells.push('Mage Hand');
+                    context = 'sidequest_mage_hand';
+                    break;
+
+                case 'sidequest_light':
+                    gameState.flags.has_light_spell = true;
+                    gameState.spells.push('Light Spell');
+                    context = 'sidequest_light';
+                    break;
+
+                case 'help_baby_creature':
+                    handleBabyCreatureScenario();
+                    return;
+
+                case 'talk_to_drow':
+                    gameState.flags.talked_to_drow = true;
+                    context = 'talk_to_drow';
+                    break;
+
+                case 'drow_quest':
+                    handleDrowQuest();
+                    return;
+
+                case 'use_teleportation_stone':
+                    if (!gameState.flags.encountered_entity) {
+                        // First time using stone - trigger entity encounter
+                        gameState.currentLocation = 'mental_realm';
+                        context = 'teleport_out';
+                    } else {
+                        // Subsequent uses - just teleport normally
+                        gameState.currentLocation = 'obsidian_athenaeum';
+                        displayNarration("You clutch the Teleportation Stone and channel your will into it. The obsidian orb grows hot, then blazes with purple light. The caverns of the Runebound Depths blur and fade.\n\nWhen your vision clears, you're standing before the Obsidian Athenaeum once more. The stone's magic worked flawlessly.");
+                        updateUI();
+                        return;
+                    }
+                    break;
+
+                case 'entity_dialogue':
+                    handleEntityDialogue();
+                    return;
+
+                case 'mind_flayer_encounter':
+                    handleMindFlayerEncounter();
+                    return;
+
+                case 'to_widows_thicket':
+                    gameState.currentLocation = 'widows_thicket';
+                    context = 'to_widows_thicket';
+                    break;
+
+                case 'return_to_square':
+                    gameState.currentLocation = 'runestone_square';
+                    displayNarration('You make your way back through the forest to Runestone Square. The familiar sounds of the town are a welcome relief after the eerie atmosphere of Widow\'s Thicket.');
+                    updateUI();
+                    return;
+
+                case 'to_ship':
+                    if (!gameState.flags.warned_final_area) {
+                        gameState.flags.warned_final_area = true;
+                        if (confirm('Are you sure you want to proceed? This is the final location. You will not be able to explore anymore.')) {
+                            gameState.currentLocation = 'mind_flayer_ship';
+                            context = 'to_ship';
+                        } else {
+                            return;
+                        }
+                    } else {
+                        gameState.currentLocation = 'mind_flayer_ship';
+                        context = 'to_ship';
+                    }
+                    break;
+
+                case 'return_inn':
+                    gameState.currentLocation = 'evening_star_inn';
+                    context = 'leave_inn';
+                    break;
+
+                case 'obstacle_vines':
+                    handleObstacleChoice('vines');
+                    return;
+
+                case 'obstacle_ravine':
+                    handleObstacleChoice('ravine');
+                    return;
+
+                case 'enter_structure':
+                    gameState.currentLocation = 'obsidian_athenaeum';
+                    context = 'enter_structure';
+                    break;
+
+                case 'obstacle_stone_door':
+                    handleObstacleChoice('stone_door');
+                    return;
+
+                case 'find_grimoire_magic':
+                    gameState.flags.has_ninth_grimoire = true;
+                    gameState.inventory.push('The Ninth Grimoire');
+                    context = 'find_grimoire_magic';
+                    break;
+
+                case 'find_grimoire_search':
+                    // 50% chance to find it on search
+                    if (Math.random() > 0.5) {
+                        gameState.flags.has_ninth_grimoire = true;
+                        gameState.inventory.push('The Ninth Grimoire');
+                        context = 'find_grimoire_search';
+                    } else {
+                        displayNarration('You search the shelves carefully, but the ancient library keeps its secrets well. Perhaps there is something you are missing... Try searching again, or perhaps there is another way to reveal hidden objects.');
+                        updateUI();
+                        return;
+                    }
+                    break;
+
+                case 'take_prism':
+                    gameState.flags.has_absolute_prism = true;
+                    gameState.inventory.push('Absolute Prism');
+                    context = 'take_prism';
+                    break;
+
+                case 'leave_athenaeum':
+                    gameState.currentLocation = 'runestone_square';
+                    context = 'leave_athenaeum';
+                    break;
+
+                case 'ship_obstacle_wall':
+                    handleObstacleChoice('ship_wall');
+                    return;
+
+                case 'ship_obstacle_tendrils':
+                    handleObstacleChoice('ship_tendrils');
+                    return;
+
+                case 'final_choice':
+                    handleFinalChoice();
+                    return;
+
+                default:
+                    context = actionId;
+            }
+
+            if (shouldGetNarration) {
+                const narration = await getNarration(context);
+                displayNarration(narration);
+                updateUI();
+            }
+        }
+
+        // Handle obstacle choices (spell selection)
+        function handleObstacleChoice(obstacleType) {
+            const actionsContainer = document.getElementById('actionButtons');
+            actionsContainer.innerHTML = '';
+
+            let spellOptions = [];
+
+            if (obstacleType === 'vines') {
+                spellOptions = [
+                    { spell: 'flame', name: 'Use Flame Spell (burn through vines)', available: gameState.flags.has_flame_spell },
+                    { spell: 'strength', name: 'Use Strength Spell (tear through vines)', available: gameState.flags.has_strength_spell },
+                    { spell: 'wind', name: 'Use Wind Spell', available: false } // Not effective
+                ];
+            } else if (obstacleType === 'ravine') {
+                spellOptions = [
+                    { spell: 'wind', name: 'Use Wind Spell (glide across)', available: gameState.flags.has_wind_spell },
+                    { spell: 'flame', name: 'Use Flame Spell', available: false },
+                    { spell: 'strength', name: 'Use Strength Spell', available: false }
+                ];
+            } else if (obstacleType === 'stone_door') {
+                spellOptions = [
+                    { spell: 'strength', name: 'Use Strength Spell (force door open)', available: gameState.flags.has_strength_spell },
+                    { spell: 'flame', name: 'Use Flame Spell', available: false },
+                    { spell: 'wind', name: 'Use Wind Spell', available: false }
+                ];
+            } else if (obstacleType === 'ship_wall') {
+                spellOptions = [
+                    { spell: 'flame', name: 'Use Flame Spell (cauterize wall)', available: gameState.flags.has_flame_spell },
+                    { spell: 'strength', name: 'Use Strength Spell (force through)', available: gameState.flags.has_strength_spell },
+                    { spell: 'wind', name: 'Use Wind Spell', available: false }
+                ];
+            } else if (obstacleType === 'ship_tendrils') {
+                spellOptions = [
+                    { spell: 'flame', name: 'Use Flame Spell (burn tendrils)', available: gameState.flags.has_flame_spell },
+                    { spell: 'strength', name: 'Use Strength Spell (rip through)', available: gameState.flags.has_strength_spell },
+                    { spell: 'wind', name: 'Use Wind Spell (blast away)', available: gameState.flags.has_wind_spell }
+                ];
+            }
+
+            spellOptions.forEach(option => {
+                const button = document.createElement('button');
+                button.className = option.available ? 'action-btn' : 'action-btn locked';
+                button.textContent = option.name;
+                
+                if (option.available) {
+                    button.onclick = () => resolveObstacle(obstacleType, option.spell);
+                }
+                
+                actionsContainer.appendChild(button);
+            });
+        }
+
+        // Resolve obstacle with chosen spell
+        async function resolveObstacle(obstacleType, spellUsed) {
+            let narration = '';
+            let context = `${obstacleType}_${spellUsed}`;
+
+            // Placeholder narrations for each obstacle + spell combo
+            const obstacleNarrations = {
+                vines_flame: "You summon flames to your fingertips and hurl a fireball at the thick vines. They ignite instantly, crackling and writhing as they burn away. The path ahead clears, smoke rising into the canopy above. The scent of charred vegetation fills the air.",
+                
+                vines_strength: "Channeling raw magical strength, you grasp the vines with both hands. Your muscles bulge with supernatural power as you tear through the vegetation like paper. Vines snap and fall away, leaving the path open. Your enhanced strength fades, but the obstacle is cleared.",
+
+                ravine_wind: "You invoke the wind spell and take a running leap. The winds catch you, carrying you upward—but something goes wrong. The distance was greater than you thought. The winds falter. You flail desperately as you plummet downward, falling past the far edge of the ravine into a deep, dark pit below. The ground rushes up to meet you, and just as impact seems certain, the earth itself seems to swallow you. Reality twists, lurches, and you feel yourself being pulled through space itself...",
+
+                ravine_wind_safe: "You invoke the wind spell and take a running leap. This time, you're more careful, more precise. The winds catch you perfectly, carrying you across the wide ravine. You land gracefully on the other side, having learned from your previous mistake.",
+
+                stone_door_strength: "The temporary strength spell surges through your body. You plant your feet and push against the massive stone door. Your muscles strain, veins bulging, and slowly - impossibly - the door begins to move. With a final push and a triumphant cry, it swings open, revealing the chamber beyond.",
+
+                ship_wall_flame: "The pulsing organic wall recoils as you conjure flames. You press forward, cauterizing the living tissue as you go. It shrieks - actually shrieks - but you push through, sealing the wound with fire behind you. The way is open, though the smell is nauseating.",
+
+                ship_wall_strength: "Enhanced strength flowing through you, you punch straight through the breathing wall. Warm, viscous fluid sprays your face as you tear an opening large enough to pass through. The ship\'s screams echo in your mind, but you press forward.",
+
+                ship_tendrils_flame: "Writhing tendrils lash toward you, but you meet them with fire. Each tendril that touches your flames recoils, blackened and smoking. You carve a path through them, leaving a trail of charred biomatter in your wake.",
+
+                ship_tendrils_strength: "You grab the writhing tendrils with magically-enhanced hands and rip them apart. They squirm and resist, but your strength is overwhelming. One by one, you tear them free from the walls and ceiling, clearing your path by brute force.",
+
+                ship_tendrils_wind: "Powerful winds blast from your outstretched hands, slamming the tendrils back against the walls. They writhe and struggle against the gale, but you maintain the spell, forcing them aside long enough to pass through safely."
+            };
+
+            narration = obstacleNarrations[context] || "You overcome the obstacle through clever use of your spell.";
+
+            // Update flags
+            if (obstacleType === 'vines') {
+                gameState.flags.vines_cleared = true;
+            } else if (obstacleType === 'ravine') {
+                if (spellUsed === 'wind') {
+                    // Check if player already has teleportation stone (already fell once)
+                    if (gameState.flags.has_teleportation_stone) {
+                        // Don't fall again - they learned their lesson
+                        gameState.flags.ravine_crossed = true;
+                        narration = obstacleNarrations['ravine_wind_safe'];
+                        context = 'ravine_wind_safe'; // Update context for correct voice
+                    } else {
+                        // First time - fall into pit
+                        gameState.flags.fell_into_pit = true;
+                        gameState.currentLocation = 'runebound_depths';
+                        
+                        // Play TWO voices in sequence: ravine_wind, then runebound_awakening
+                        const voiceSequence = [
+                            ELEVENLABS_VOICES['ravine_wind'],
+                            ELEVENLABS_VOICES['runebound_awakening']
+                        ];
+                        
+                        displayNarrationWithContext(
+                            narration + "\n\nWhen you finally regain consciousness, you find yourself in a vast underground realm. Glowing fungi illuminate crystalline caverns. This is not Widow\'s Thicket anymore.",
+                            null,
+                            voiceSequence
+                        );
+                        updateUI();
+                        return;
+                    }
+                } else {
+                    gameState.flags.ravine_crossed = true;
+                }
+            } else if (obstacleType === 'stone_door') {
+                gameState.flags.stone_door_opened = true;
+                // Trigger subtle presence after opening door with voice sequence
+                narration += "\n\n" + getPlaceholderNarration('subtle_presence');
+                
+                // Play two voices in sequence
+                const voiceSequence = [
+                    ELEVENLABS_VOICES[context], // stone_door_strength or stone_door_flame
+                    ELEVENLABS_VOICES['subtle_presence']
+                ];
+                
+                displayNarrationWithContext(narration, null, voiceSequence);
+                updateUI();
+                return;
+            } else if (obstacleType === 'ship_wall') {
+                gameState.flags.wall_cleared = true;
+            } else if (obstacleType === 'ship_tendrils') {
+                gameState.flags.tendrils_cleared = true;
+            }
+
+            displayNarrationWithContext(narration, context);
+            updateUI();
+        }
+
+        // Handle final choice
+        function handleFinalChoice() {
+            const actionsContainer = document.getElementById('actionButtons');
+            actionsContainer.innerHTML = '';
+
+            // EPIC FINAL CONFRONTATION NARRATION
+            const finalNarration = "You step into the heart of the ship. The chamber before you defies comprehension.\n\nThe Elder Brain.\n\nA colossal sphere of pulsating neural tissue, easily the size of a cathedral, floats suspended in a vast tank of viscous brine. Thousands of writhing tendrils extend from its surface, connecting to the ship's walls, ceiling, and floor. The air itself seems to vibrate with psychic pressure.\n\nAs you approach, the Elder Brain's consciousness crashes into yours like a tidal wave.\n\n'Nyx Hollow.' Its voice is not heard but FELT, reverberating through every neuron in your brain. 'Warlock. Half-blood. Survivor. You have come far. Farther than we anticipated. You defeated Thaxior. You resisted the void. You stand before us, bearing the very tool designed to destroy us.'\n\nThe Absolute Prism in your hand burns with cold fire, resonating with the cursed power radiating from the brain.\n\n'But do you truly understand what you hold? What WE are? We are not evil, little warlock. We are evolution. Unity. The end of suffering through the joining of all minds into one perfect consciousness. Your pain, your loneliness, your fear of death - all of it would END if you joined us.'\n\nYou feel the truth of it. The curse in your skull pulses, offering a seductive whisper: surrender, and find peace.\n\n'Or,' the Elder Brain continues, its tone shifting, 'you can destroy us. Purify the curse. Be the hero. Save the surface world from our influence. But know this - the curse will die, yes. But so will the thousands of minds already joined to us. They are us now. You would be killing them all.'\n\nThe weight of the choice crushes down on you.\n\nPurify the curse with the Absolute Prism, and doom the consumed minds to oblivion? Consume the curse's power yourself, binding it to your will? Or... if you possess The Ninth Grimoire... could you take the power and CONTROL it, becoming something beyond mortal, beyond mind flayer?\n\nThe Elder Brain waits.\n\nYour curse throbs.\n\nThe Prism burns in your hand.\n\nWhat will you choose?";
+
+            displayNarrationWithContext(finalNarration, 'final_confrontation');
+
+            setTimeout(() => {
+                const title = document.createElement('div');
+                title.className = 'actions-title';
+                title.textContent = 'The Moment of Truth - Choose Your Fate';
+                actionsContainer.appendChild(title);
+
+                const choices = [
+                    {
+                        id: 'purify',
+                        text: 'Use the Absolute Prism to contain and destroy the curse (Heroic Path)',
+                        available: true
+                    },
+                    {
+                        id: 'consume',
+                        text: 'Consume the curse\'s power and bind it to yourself (Dark Path)',
+                        available: !gameState.flags.has_ninth_grimoire
+                    },
+                    {
+                        id: 'ascend',
+                        text: gameState.flags.has_ninth_grimoire ? 'Consume the power and use The Ninth Grimoire to control it (Secret Path)' : '[LOCKED]',
+                        available: gameState.flags.has_ninth_grimoire,
+                        isSecret: true
+                    }
+                ];
+
+                console.log('🎮 Final Choice Debug:');
+                console.log('Has Ninth Grimoire:', gameState.flags.has_ninth_grimoire);
+                console.log('Choices:', choices);
+
+                choices.forEach(choice => {
+                    console.log(`Choice "${choice.id}": available=${choice.available}, isSecret=${choice.isSecret}`);
+                    
+                    const button = document.createElement('button');
+                    
+                    if (choice.isSecret && !choice.available) {
+                        // Secret ending not unlocked - show only [LOCKED]
+                        console.log('Creating LOCKED secret button');
+                        button.className = 'action-btn locked';
+                        button.textContent = '[LOCKED]';
+                        button.style.textAlign = 'center';
+                        button.style.fontFamily = "'Cinzel', serif";
+                        button.style.fontSize = '1.3rem';
+                        button.style.fontWeight = '600';
+                        button.style.color = 'var(--blood-red)';
+                    } else {
+                        console.log(`Creating button: available=${choice.available}`);
+                        button.className = choice.available ? 'action-btn' : 'action-btn locked';
+                        button.textContent = choice.text;
+                        
+                        if (choice.available) {
+                            console.log('Adding onclick for:', choice.id);
+                            button.onclick = () => triggerEnding(choice.id);
+                        }
+                    }
+                    
+                    actionsContainer.appendChild(button);
+                });
+            }, 1000); // Wait 1 second after narration starts before showing choices
+        }
+
+        // Handle baby creature scenario
+        function handleBabyCreatureScenario() {
+            const actionsContainer = document.getElementById('actionButtons');
+            actionsContainer.innerHTML = '';
+
+            displayNarration("You hear faint whimpering nearby. Following the sound, you discover a small, luminescent creature huddled in the darkness. Its scales shimmer faintly, but its light is dying. The creature chirps pitifully, clearly lost and frightened. In the distance, you hear a larger creature calling out - its mother, perhaps?");
+
+            setTimeout(() => {
+                const options = [
+                    { id: 'use_light', text: 'Use Light Spell to guide the baby back to its mother', available: gameState.flags.has_light_spell },
+                    { id: 'leave_creature', text: 'Leave the creature - you don\'t have time for this', available: true }
+                ];
+
+                options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.className = option.available ? 'action-btn' : 'action-btn locked';
+                    button.textContent = option.text;
+                    
+                    if (option.available) {
+                        button.onclick = () => resolveBabyCreature(option.id);
+                    }
+                    
+                    actionsContainer.appendChild(button);
+                });
+            }, 500);
+        }
+
+        async function resolveBabyCreature(choice) {
+            gameState.flags.helped_baby_creature = true;
+
+            if (choice === 'use_light') {
+                const narration = "You summon a warm, gentle light that fills the darkness. The baby creature\'s eyes widen with hope. It chirps excitedly and begins to follow your light. You guide it through the forest, the light cutting through the oppressive gloom. After several minutes, you hear a deep, resonant call - the mother.\n\nA magnificent creature emerges from the shadows, easily twice the size of a horse, its scales radiating with inner light. She nuzzles her baby, relief evident in every movement. Then she turns to you, and you feel a warm presence in your mind.\n\n'You saved my child, warlock,' a voice echoes in your thoughts. 'I am Luminara, guardian of these woods. Accept my blessing.'\n\nShe touches your forehead with her snout, and power flows into you - a protective aura that will shield your mind from psionic assault. The Mother\'s Blessing will serve you well against the mind flayers.";
+                
+                gameState.flags.has_mothers_blessing = true;
+                gameState.inventory.push("Mother\'s Blessing");
+                
+                // Play two voices in sequence
+                const voiceSequence = [
+                    ELEVENLABS_VOICES['baby_creature_light'],
+                    ELEVENLABS_VOICES['luminara_appears']
+                ];
+                displayNarrationWithContext(narration, null, voiceSequence);
+            } else {
+                const narration = "You turn away from the creature\'s cries. You have a mission, and you can\'t afford distractions. As you walk away, the whimpering fades behind you. You tell yourself it was the right choice, but doubt gnaws at you.";
+                displayNarrationWithContext(narration, 'baby_creature_leave');
+            }
+
+            updateUI();
+        }
+
+        // Handle Drow Quest
+        function handleDrowQuest() {
+            const actionsContainer = document.getElementById('actionButtons');
+            actionsContainer.innerHTML = '';
+
+            displayNarration("The Drow lead you deeper into their realm. They bring you to a massive chasm where a sacred relic - the Shadowheart Crystal - floats in the center, suspended by magical energy. 'Our enemies have trapped the crystal,' the Drow leader explains. 'The bridge is destroyed. You must retrieve it.'\n\nYou approach the edge and see the problem: the crystal floats 30 feet away, far beyond reach. A broken lever mechanism sits on a distant platform - if you could activate it, magical platforms might form. What will you do?");
+
+            setTimeout(() => {
+                const options = [
+                    { id: 'use_mage_hand', text: 'Use Mage Hand to pull the distant lever', available: gameState.flags.has_mage_hand },
+                    { id: 'use_wind', text: 'Use Wind Spell to try to blow yourself across', available: gameState.flags.has_wind_spell },
+                    { id: 'use_flame', text: 'Use Flame Spell to try to create a path', available: gameState.flags.has_flame_spell }
+                ];
+
+                options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.className = option.available ? 'action-btn' : 'action-btn locked';
+                    button.textContent = option.text;
+                    
+                    if (option.available) {
+                        button.onclick = () => resolveDrowQuest(option.id);
+                    }
+                    
+                    actionsContainer.appendChild(button);
+                });
+            }, 500);
+        }
+
+        async function resolveDrowQuest(spellChoice) {
+            let narration = '';
+
+            if (spellChoice === 'use_mage_hand') {
+                narration = "You extend your hand and summon the Mage Hand spell. A spectral hand materializes, glowing faintly as it floats across the chasm. The Drow watch in amazement as your magical hand reaches the distant lever and pulls it down with a satisfying CLUNK.\n\nMagical platforms materialize in sequence, forming a path to the crystal. You walk across confidently, retrieve the Shadowheart Crystal, and return to the Drow. Their leader bows deeply.\n\n'Impressive magic, surface dweller. You have earned our respect and our aid.' They present you with a Teleportation Stone - a smooth obsidian orb that pulses with power. 'This will return you to the surface world. May it serve you well.'";
+            } else if (spellChoice === 'use_wind') {
+                narration = "You summon powerful winds and leap toward the crystal. The gusts carry you partway, but not far enough. You barely manage to grab onto a small outcropping, dangling precariously. After a harrowing climb and some creative spell use, you manage to reach the crystal and return.\n\nThe Drow leader nods approvingly. 'Resourceful, if reckless. You have earned your reward.' They hand you a Teleportation Stone.";
+            } else if (spellChoice === 'use_flame') {
+                narration = "You attempt to use flames to somehow create a path, but it\'s not the right tool for this task. After several failed attempts, a young Drow mage takes pity on you and levitates you across. You retrieve the crystal, feeling somewhat embarrassed.\n\nThe Drow leader chuckles. 'Not every problem needs fire, warlock. But you tried, and you succeeded. Take this Teleportation Stone.'";
+            }
+
+            gameState.flags.completed_drow_quest = true;
+            gameState.flags.has_teleportation_stone = true;
+            gameState.inventory.push('Teleportation Stone');
+
+            displayNarration(narration);
+            updateUI();
+        }
+
+        // Handle Entity Dialogue
+        function handleEntityDialogue() {
+            const actionsContainer = document.getElementById('actionButtons');
+            actionsContainer.innerHTML = '';
+
+            displayNarration("The void pulses with malevolent energy. Then, a voice - ancient, alien, and impossibly vast - speaks directly into your mind.\n\n'Nyx Hollow. Half-breed. Warlock. You seek to end me, yet you carry my gift within you already. The tadpole writhes in your skull. You are becoming... us.'\n\nYou feel the truth of it - the curse's influence spreading through your mind. The entity continues:\n\n'Why do you resist? Join us. Become perfection. Become infinite. Or die trying to stop what has already begun.'");
+
+            setTimeout(() => {
+                const title = document.createElement('div');
+                title.className = 'actions-title';
+                title.textContent = 'How do you respond?';
+                actionsContainer.appendChild(title);
+
+                const dialogueOptions = [
+                    { id: 'determined', text: '"I will stop you. No matter what it takes, I will end this curse." (Determined/Heroic)' },
+                    { id: 'aggressive', text: '"You\'re nothing but a parasite. I\'ll rip you from this world." (Threatening/Aggressive)' },
+                    { id: 'frightened', text: '"What... what have you done to me? Get out of my head!" (Frightened/Desperate)' },
+                    { id: 'curious', text: '"Why? Why do this? What do you gain from consuming minds?" (Curious/Investigative)' }
+                ];
+
+                dialogueOptions.forEach(option => {
+                    const button = document.createElement('button');
+                    button.className = 'action-btn';
+                    button.textContent = option.text;
+                    button.onclick = () => resolveEntityDialogue(option.id);
+                    actionsContainer.appendChild(button);
+                });
+            }, 500);
+        }
+
+        async function resolveEntityDialogue(dialogueChoice) {
+            let narration = '';
+            let voiceSequence = [];
+
+            if (dialogueChoice === 'determined') {
+                narration = "Your voice rings with conviction, cutting through the void. 'I will stop you. No matter what it takes, I will end this curse.'\n\nThe entity's laughter is like grinding stone. 'Determination. How... quaint. We have consumed civilizations, warlock. Your resolve changes nothing.'\n\n'Maybe,' you reply steadily. 'But I'm still going to try.'\n\nThere's a pause. 'Then come, little hero. We shall see if your conviction survives what awaits you.'";
+                voiceSequence = [
+                    ELEVENLABS_VOICES['entity_determined'],
+                    ELEVENLABS_VOICES['entity_dialogue_conclusion']
+                ];
+            } else if (dialogueChoice === 'aggressive') {
+                narration = "Rage fills you. 'You\'re nothing but a parasite. I'll rip you from this world.'\n\nThe entity's presence intensifies, oppressive and amused. 'Such fury. Such delicious anger. Yes... let your emotions fuel you. Make yourself vulnerable. We hunger for strong wills to break.'\n\nYou realize your anger is feeding it, but you can\'t help the hatred burning in your chest.";
+                voiceSequence = [
+                    ELEVENLABS_VOICES['entity_aggressive'],
+                    ELEVENLABS_VOICES['entity_dialogue_conclusion']
+                ];
+            } else if (dialogueChoice === 'frightened') {
+                narration = "Panic seizes you. 'What... what have you done to me? Get out of my head!'\n\nThe entity's satisfaction washes over you like cold water. 'Fear. Yes. You should be afraid. You are already ours, warlock. You simply haven't accepted it yet. Soon, you will beg to join us.'\n\nIts words claw at your sanity, but somewhere deep inside, a spark of defiance remains.";
+                voiceSequence = [
+                    ELEVENLABS_VOICES['entity_frightened'],
+                    ELEVENLABS_VOICES['entity_dialogue_conclusion']
+                ];
+            } else if (dialogueChoice === 'curious') {
+                narration = "'Why?' you ask, forcing yourself to think clearly. 'Why do this? What do you gain from consuming minds?'\n\nThe entity seems to consider this. 'What does a river gain from flowing? What does fire gain from burning? We are as we are. Unity. Perfection. All minds joined as one. Individuality is chaos. We bring... order.'\n\n'Order through domination,' you counter.\n\n'Order through evolution,' it replies. 'You will understand. Soon.'";
+                voiceSequence = [
+                    ELEVENLABS_VOICES['entity_curious'],
+                    ELEVENLABS_VOICES['entity_dialogue_conclusion']
+                ];
+            }
+
+            narration += "\n\nThe void begins to fracture. The entity's presence withdraws. 'This changes nothing, Nyx Hollow. Your fate is sealed.'\n\nReality snaps back into focus. You\'re on your knees in front of the Obsidian Athenaeum, gasping for breath. Your head throbs with pain. The curse is getting worse - you can feel it. Time is running out. You must hurry.";
+
+            gameState.flags.encountered_entity = true;
+            gameState.currentLocation = 'obsidian_athenaeum';
+
+            displayNarrationWithContext(narration, null, voiceSequence);
+            updateUI();
+        }
+
+        // Handle Mind Flayer Encounter
+        function handleMindFlayerEncounter() {
+            const actionsContainer = document.getElementById('actionButtons');
+            actionsContainer.innerHTML = '';
+
+            // Play intense combat music
+            playMusic('combat');
+
+            // Play BOTH thaxior_intro.mp3 AND thaxior_dialogue.mp3 in sequence
+            const voiceSequence = [
+                ELEVENLABS_VOICES['thaxior_intro'],
+                ELEVENLABS_VOICES['thaxior_dialogue']
+            ];
+            
+            displayNarrationWithContext(
+                "A figure steps from the shadows of the pulsating corridor. Your blood runs cold.\n\nA mind flayer. Its tentacled face writhes as its milky-white eyes fix on you. But this is no ordinary encounter - recognition flashes through your mind. This is the same presence you felt in the void. The entity.\n\n'We meet in the flesh, Nyx Hollow,' its voice echoes telepathically. 'I am Thaxior, Herald of the Elder Brain. I touched your mind before. I tasted your thoughts. And now... I will feast upon them.'\n\nThe mind flayer\'s tentacles writhe with anticipation.", 
+                null, 
+                voiceSequence
+            );
+
+            setTimeout(() => {
+                const title = document.createElement('div');
+                title.className = 'actions-title';
+                title.textContent = 'How do you respond to Thaxior?';
+                actionsContainer.appendChild(title);
+
+                const dialogueOptions = [
+                    { id: 'defiant', text: '"You made a mistake showing yourself. Now I can end you." (Defiant/Confident)' },
+                    { id: 'cautious', text: '"Why reveal yourself? What do you want from me?" (Cautious/Tactical)' },
+                    { id: 'aggressive', text: '"I\'ve come to destroy everything you are. Starting with you." (Aggressive/Hostile)' },
+                    { id: 'understanding', text: '"You were once something else, weren\'t you? Before the curse?" (Empathetic/Curious)' }
+                ];
+
+                dialogueOptions.forEach(option => {
+                    const button = document.createElement('button');
+                    button.className = 'action-btn';
+                    button.textContent = option.text;
+                    button.onclick = () => resolveMindFlayerDialogue(option.id);
+                    actionsContainer.appendChild(button);
+                });
+            }, 500);
+        }
+
+        async function resolveMindFlayerDialogue(dialogueChoice) {
+            let narration = '';
+
+            if (dialogueChoice === 'defiant') {
+                narration = "'You made a mistake showing yourself. Now I can end you.'\n\nThaxior\'s laughter is like glass scraping against bone. 'Defiance. How predictable. You surface dwellers always believe yourselves heroes until we peel back your minds layer by layer. Let me show you what true power feels like.'";
+            } else if (dialogueChoice === 'cautious') {
+                narration = "'Why reveal yourself? What do you want from me?'\n\nThe mind flayer tilts its head, tentacles twitching. 'Strategic thinking. Admirable. I reveal myself because your death serves a purpose - to feed the Elder Brain with your exceptional mind. A warlock powerful enough to reach this far... your consciousness will be a delicacy.'";
+            } else if (dialogueChoice === 'aggressive') {
+                narration = "'I\'ve come to destroy everything you are. Starting with you.'\n\n'Such rage,' Thaxior responds, its voice dripping with satisfaction. 'Your anger makes you delicious. The angrier you are, the more vulnerable your mind becomes. Please, continue to hate me. It will make consuming you so much sweeter.'";
+            } else if (dialogueChoice === 'understanding') {
+                narration = "'You were once something else, weren\'t you? Before the curse?'\n\nFor the briefest moment, something flickers in those alien eyes. Pain? Regret? Then it\'s gone. 'What I was died long ago. What I am now is perfection. You could join us, Nyx. You could transcend your pitiful mortality. But you won\'t. And so you will become us through consumption instead.'";
+            }
+
+            displayNarration(narration);
+
+            // Add a dramatic pause with a "Continue..." button before the attack
+            setTimeout(() => {
+                const actionsContainer = document.getElementById('actionButtons');
+                actionsContainer.innerHTML = '';
+
+                const continueButton = document.createElement('button');
+                continueButton.className = 'action-btn';
+                continueButton.textContent = 'Continue...';
+                continueButton.onclick = () => triggerPsionicAssault();
+                actionsContainer.appendChild(continueButton);
+            }, 500);
+        }
+
+        function triggerPsionicAssault() {
+            const narration = "Thaxior\'s eyes flare with psionic energy. 'Enough talk. Your mind is MINE!'\n\nThe mind flayer\'s psychic assault slams into you like a battering ram...";
+            
+            displayNarration(narration);
+
+            // Add another pause to let player read the assault description
+            setTimeout(() => {
+                const actionsContainer = document.getElementById('actionButtons');
+                actionsContainer.innerHTML = '';
+
+                const continueButton = document.createElement('button');
+                continueButton.className = 'action-btn';
+                continueButton.textContent = 'Brace yourself...';
+                continueButton.onclick = () => resolvePsionicAssault();
+                actionsContainer.appendChild(continueButton);
+            }, 500);
+        }
+
+        function resolvePsionicAssault() {
+            // Check if player has Mother\'s Blessing
+            if (gameState.flags.has_mothers_blessing) {
+                handleBlessedDefense();
+            } else {
+                handlePsionicCombat();
+            }
+        }
+
+        // If player has Mother\'s Blessing
+        function handleBlessedDefense() {
+            const actionsContainer = document.getElementById('actionButtons');
+            actionsContainer.innerHTML = '';
+
+            displayNarration("The psychic assault crashes against you with the force of a tidal wave... and STOPS.\n\nThe Mother\'s Blessing flares to life, a warm golden light erupting from your chest. Luminara\'s gift forms a perfect shield around your mind. Thaxior\'s assault cannot penetrate it.\n\nThe mind flayer stumbles backward, shock evident even on its alien features. 'Impossible! What... what is this protection?!'\n\nYou feel the blessing\'s power coursing through you. The mind flayer is vulnerable now, its psychic energy depleted from the failed assault. This is your chance.");
+
+            setTimeout(() => {
+                const title = document.createElement('div');
+                title.className = 'actions-title';
+                title.textContent = 'How do you end Thaxior?';
+                actionsContainer.appendChild(title);
+
+                const options = [
+                    { id: 'quick_end', text: 'End it quickly with a fireball to the head (Merciful/Efficient)', spell: 'flame' },
+                    { id: 'brutal_end', text: 'Use enhanced strength to crush its skull (Brutal/Vengeful)', spell: 'strength' },
+                    { id: 'banish', text: 'Use wind magic to hurl it into the ship\'s organic walls (Poetic Justice)', spell: 'wind' },
+                    { id: 'no_spell', text: 'Draw your weapon and fight it conventionally (Personal/Honorable)', spell: 'none' }
+                ];
+
+                options.forEach(option => {
+                    const button = document.createElement('button');
+                    const hasSpell = option.spell === 'none' || 
+                                    (option.spell === 'flame' && gameState.flags.has_flame_spell) ||
+                                    (option.spell === 'strength' && gameState.flags.has_strength_spell) ||
+                                    (option.spell === 'wind' && gameState.flags.has_wind_spell);
+                    
+                    button.className = hasSpell ? 'action-btn' : 'action-btn locked';
+                    button.textContent = option.text;
+                    
+                    if (hasSpell) {
+                        button.onclick = () => resolveBlessedKill(option.id);
+                    }
+                    
+                    actionsContainer.appendChild(button);
+                });
+            }, 500);
+        }
+
+        async function resolveBlessedKill(method) {
+            let narration = '';
+
+            if (method === 'quick_end') {
+                narration = "You summon flames without hesitation. A single, precise fireball strikes Thaxior directly in the head. The mind flayer doesn\'t even have time to scream. Its body crumples to the floor, smoke rising from the charred remains.\n\n'May you find peace from whatever you were,' you whisper.\n\nThe corridor ahead is clear. The Mother\'s Blessing saved your life.";
+            } else if (method === 'brutal_end') {
+                narration = "The strength spell surges through you as you stride forward. Thaxior raises its hands defensively, but you grab its elongated skull with both hands. Your enhanced grip is like a vice.\n\n'This is for everyone you\'ve consumed,' you snarl.\n\nYou SQUEEZE. The mind flayer\'s skull cracks, then shatters. Purple ichor sprays across the floor. When you release your grip, the body falls lifelessly.\n\nVengeance is yours.";
+            } else if (method === 'banish') {
+                narration = "You summon powerful winds and thrust your hands forward. Thaxior is lifted off its feet and hurled backward with tremendous force. It crashes into the living walls of the ship.\n\nThe organic matter RESPONDS. Tendrils burst from the walls and wrap around the mind flayer, pulling it deeper into the ship\'s flesh. Thaxior screams - a horrible, psychic wail - as the ship itself consumes it.\n\nPoetic justice. The creature of the ship, devoured by the ship.";
+            } else if (method === 'no_spell') {
+                narration = "You draw your weapon and approach the stunned mind flayer. This ends face-to-face, as warriors do.\n\nThaxior attempts one final desperate strike, tentacles lashing out, but you\'re faster. Your blade finds its mark - clean, precise, lethal. The mind flayer collapses.\n\nYou stand over its body, breathing heavily. This was personal. This was earned.\n\nThe way forward is clear.";
+            }
+
+            gameState.flags.defeated_mind_flayer = true;
+            displayNarration(narration);
+            updateUI();
+        }
+
+        // If player DOESN'T have Mother\'s Blessing - Psychic Combat
+        function handlePsionicCombat() {
+            const actionsContainer = document.getElementById('actionButtons');
+            actionsContainer.innerHTML = '';
+
+            displayNarration("The psychic assault hits with DEVASTATING force. You scream as your mind is ripped from your body and hurled into the Abyss.\n\nYou\'re floating in the infinite void again, but this time you\'re not alone. Thaxior\'s presence manifests as a towering shadow with countless writhing tentacles. This is a battle of minds, and if you lose, your consciousness will be consumed forever.\n\n'Your mind is mine, Nyx Hollow! SUBMIT!'\n\nYou feel your magical energy coalescing around you. You can fight back. You MUST fight back.");
+
+            setTimeout(() => {
+                const continueButton = document.createElement('button');
+                continueButton.className = 'action-btn';
+                continueButton.textContent = 'Prepare to fight...';
+                continueButton.onclick = () => startPsionicCombat(1);
+                actionsContainer.appendChild(continueButton);
+            }, 500);
+        }
+
+        function startPsionicCombat(round) {
+            const actionsContainer = document.getElementById('actionButtons');
+            actionsContainer.innerHTML = '';
+
+            let roundNarration = '';
+
+            if (round === 1) {
+                roundNarration = "ROUND 1: Thaxior\'s shadow looms, tentacles reaching for your consciousness. You must strike first!";
+            } else if (round === 2) {
+                roundNarration = "ROUND 2: Your attack lands! Thaxior recoils, but counterattacks with renewed fury. Psychic energy crackles around you both. Continue the assault!";
+            } else if (round === 3) {
+                roundNarration = "ROUND 3: The mind flayer is weakening! Its form flickers and fragments. One more decisive blow will finish this mental duel!";
+            }
+
+            displayNarration(roundNarration);
+
+            setTimeout(() => {
+                const title = document.createElement('div');
+                title.className = 'actions-title';
+                title.textContent = 'Channel your magic - Attack!';
+                actionsContainer.appendChild(title);
+
+                const spellOptions = [
+                    { 
+                        id: 'flame', 
+                        text: 'Channel flames through your consciousness - burn the shadow (Aggressive/Destructive)',
+                        available: gameState.flags.has_flame_spell 
+                    },
+                    { 
+                        id: 'wind', 
+                        text: 'Summon mental winds to scatter Thaxior\'s form (Strategic/Dispersing)',
+                        available: gameState.flags.has_wind_spell 
+                    },
+                    { 
+                        id: 'strength', 
+                        text: 'Manifest pure willpower as crushing force (Dominating/Overwhelming)',
+                        available: gameState.flags.has_strength_spell 
+                    },
+                    { 
+                        id: 'light', 
+                        text: 'Radiate purifying light to banish the darkness (Cleansing/Pure)',
+                        available: gameState.flags.has_light_spell 
+                    },
+                    { 
+                        id: 'detect', 
+                        text: 'Use Detect Magic to find Thaxior\'s weak point (Tactical/Precise)',
+                        available: gameState.flags.has_detect_magic 
+                    },
+                    { 
+                        id: 'mage_hand', 
+                        text: 'Conjure spectral hands to grapple and crush (Controlling/Binding)',
+                        available: gameState.flags.has_mage_hand 
+                    }
+                ];
+
+                spellOptions.forEach(option => {
+                    const button = document.createElement('button');
+                    button.className = option.available ? 'action-btn' : 'action-btn locked';
+                    button.textContent = option.text;
+                    
+                    if (option.available) {
+                        button.onclick = () => executePsionicAttack(option.id, round);
+                    }
+                    
+                    actionsContainer.appendChild(button);
+                });
+            }, 500);
+        }
+
+        function executePsionicAttack(spellType, round) {
+            let attackNarration = '';
+
+            // Different narration for each spell type
+            if (spellType === 'flame') {
+                if (round === 1) attackNarration = "Flames of pure mental energy erupt from your consciousness! They sear through Thaxior\'s shadowy form, leaving burning wounds in the psychic fabric. The mind flayer HOWLS!";
+                else if (round === 2) attackNarration = "You intensify the flames, creating a inferno of thought and will! Thaxior\'s tentacles blacken and crumble. It\'s working!";
+                else attackNarration = "A final surge of purifying fire! You unleash everything you have. Thaxior\'s shadow ignites completely, burning away like paper in a bonfire!";
+            } else if (spellType === 'wind') {
+                if (round === 1) attackNarration = "Psychic winds howl through the void at your command! They tear at Thaxior\'s form, scattering fragments of its consciousness. The mind flayer struggles to maintain coherence!";
+                else if (round === 2) attackNarration = "The winds intensify into a mental hurricane! Pieces of Thaxior are ripped away and dispersed into nothingness. It cannot withstand this!";
+                else attackNarration = "You summon a final, devastating tornado of pure thought! Thaxior\'s form is completely scattered, torn apart by winds of willpower!";
+            } else if (spellType === 'strength') {
+                if (round === 1) attackNarration = "Your willpower manifests as crushing, invisible force! You SLAM into Thaxior\'s presence with the weight of absolute determination. The shadow buckles!";
+                else if (round === 2) attackNarration = "You press the assault, your mental strength overwhelming! Thaxior is compressed, crushed by the sheer force of your resolve!";
+                else attackNarration = "With a final exertion of pure will, you CRUSH what remains of Thaxior\'s consciousness! Its shadow collapses completely under your mental might!";
+            } else if (spellType === 'light') {
+                if (round === 1) attackNarration = "Brilliant light blazes from your essence! Thaxior\'s darkness recoils, unable to withstand the purity of your illumination. Shadows scream in the presence of your radiance!";
+                else if (round === 2) attackNarration = "The light intensifies, banishing more of the darkness! Thaxior is being PURGED by your luminescence!";
+                else attackNarration = "You become a supernova of pure, cleansing light! Thaxior\'s shadow is completely annihilated, burned away by radiance it cannot comprehend!";
+            } else if (spellType === 'detect') {
+                if (round === 1) attackNarration = "Your magical detection pierces through Thaxior\'s defenses! You see its weaknesses, the fractures in its psychic armor. You strike with SURGICAL precision!";
+                else if (round === 2) attackNarration = "You continue exploiting every vulnerability! Each strike finds a weak point. Thaxior cannot defend against such tactical perfection!";
+                else attackNarration = "You've mapped every weakness, every flaw. One final, perfectly placed strike at the core of its being! Thaxior\'s form shatters like glass!";
+            } else if (spellType === 'mage_hand') {
+                if (round === 1) attackNarration = "Spectral hands materialize from your will! They grasp Thaxior\'s tentacles, binding them, crushing them. The mind flayer cannot break free!";
+                else if (round === 2) attackNarration = "More hands emerge, dozens of them! They tear at Thaxior\'s form, ripping pieces away. The mind flayer is being dismantled!";
+                else attackNarration = "A thousand phantom hands converge! They grasp every part of Thaxior and PULL in opposite directions. The shadow is torn apart!";
+            }
+
+            displayNarration(attackNarration);
+
+            // Progress through combat rounds with player control
+            setTimeout(() => {
+                const actionsContainer = document.getElementById('actionButtons');
+                actionsContainer.innerHTML = '';
+
+                if (round < 3) {
+                    // Continue to next round
+                    const continueButton = document.createElement('button');
+                    continueButton.className = 'action-btn';
+                    continueButton.textContent = 'Continue the assault...';
+                    continueButton.onclick = () => startPsionicCombat(round + 1);
+                    actionsContainer.appendChild(continueButton);
+                } else {
+                    // Victory!
+                    const continueButton = document.createElement('button');
+                    continueButton.className = 'action-btn';
+                    continueButton.textContent = 'Victory...';
+                    continueButton.onclick = () => completePsionicVictory();
+                    actionsContainer.appendChild(continueButton);
+                }
+            }, 500);
+        }
+
+        function completePsionicVictory() {
+            const actionsContainer = document.getElementById('actionButtons');
+            actionsContainer.innerHTML = '';
+
+            displayNarration("Thaxior\'s psychic form dissolves completely, fragments of its consciousness scattering into the infinite void. 'Impossible... you should have... been mine...'\n\nThe voice fades to nothing.\n\nYour consciousness SNAPS back to reality. You\'re standing in the ship\'s corridor, gasping for breath. Before you, the physical form of Thaxior staggers, its mind utterly shattered from the psychic battle. Purple ichor drips from its tentacles. Its milky eyes are vacant.\n\nThe mind flayer is defenseless. Broken. Defeated.\n\nHow do you end this?");
+
+            setTimeout(() => {
+                const title = document.createElement('div');
+                title.className = 'actions-title';
+                title.textContent = 'Finish Thaxior:';
+                actionsContainer.appendChild(title);
+
+                const options = [
+                    { id: 'merciful', text: 'End its suffering quickly (Merciful)' },
+                    { id: 'vengeful', text: 'Make it suffer as it made others suffer (Vengeful)' },
+                    { id: 'leave', text: 'Leave it to die slowly, alone (Cold Justice)' },
+                    { id: 'study', text: 'Study it briefly, then end it (Knowledge Seeker)' }
+                ];
+
+                options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.className = 'action-btn';
+                    button.textContent = option.text;
+                    button.onclick = () => finishMindFlayer(option.id);
+                    actionsContainer.appendChild(button);
+                });
+            }, 500);
+        }
+
+        function finishMindFlayer(method) {
+            let narration = '';
+
+            if (method === 'merciful') {
+                narration = "You approach the broken mind flayer. Despite everything it\'s done, everything it represents, you won\'t become a monster to defeat monsters.\n\nYou draw your weapon and make it quick. Clean. Painless.\n\nThaxior\'s body slumps to the floor. It\'s over.\n\n'Rest now,' you whisper. 'Whatever you were before the curse... I hope you find it again.'";
+            } else if (method === 'vengeful') {
+                narration = "This creature has consumed countless minds. Destroyed countless lives. It deserves no mercy.\n\nYou take your time. Every strike is deliberate. Every wound calculated. Thaxior cannot even scream - its mind is too shattered. But you make sure it feels everything.\n\nWhen it finally stops twitching, you feel... hollow. Vengeance doesn\'t taste as sweet as you'd hoped.\n\nBut it\'s done.";
+            } else if (method === 'leave') {
+                narration = "You step over the mind flayer\'s broken form and continue forward. Let it die here, alone, in the darkness of its own ship.\n\nBehind you, you hear faint, pathetic sounds - the death throes of something that was once powerful.\n\nYou don\'t look back.\n\nJustice, cold and absolute.";
+            } else if (method === 'study') {
+                narration = "Before ending it, you examine the mind flayer closely. You've never been this close to one while it was helpless. You study its alien physiology, the way its tentacles still twitch involuntarily, the strange bioluminescence fading from its skin.\n\nKnowledge is power. Understanding your enemy is crucial.\n\nWhen you\'ve learned what you can, you end it swiftly.\n\nThe information may prove useful against the Elder Brain.";
+            }
+
+            narration += "\n\nThe corridor ahead beckons. The path to the Elder Brain is clear.";
+
+            gameState.flags.defeated_mind_flayer = true;
+            
+            // Return to ship music
+            playMusic('mind_flayer_ship');
+            
+            displayNarration(narration);
+            updateUI();
+        }
+
+        // Trigger ending
+        async function triggerEnding(endingType) {
+            gameState.gameOver = true;
+            gameState.ending = endingType;
+
+            let endingNarration = '';
+            let endingTitle = '';
+            let endingClass = '';
+            let endingMusic = '';
+
+            if (endingType === 'purify') {
+                endingTitle = 'The Redeemer';
+                endingClass = 'redeemer';
+                endingMusic = 'ending_redeemer';
+                endingNarration = `You raise the Absolute Prism high above your head. It pulses with brilliant light as you channel your will through it. The Elder Brain writhes and screams psychically as the prism begins to draw in the curse.
+
+The mind flayer curse - all its dark tendrils, all its corruption, all its horror - flows into the crystalline artifact like water into a drain. The ship shudders. The Elder Brain's screams fade to whimpers.
+
+With a final surge of power, you SHATTER the Absolute Prism. The curse explodes outward in a flash of purifying light, then dissipates into nothing. Silence falls. The Elder Brain's corpse floats lifelessly in its tank.
+
+You've done it. The curse is ended. Waterdeep is saved.
+
+Word of your heroism spreads across the land. Nyx Hollow, the Redeemer, the hero who saved Waterdeep from the mind flayer threat. Songs will be sung of this day for generations.
+
+You return to the Evening Star Inn to a hero's welcome. Your mission is complete.`;
+            
+            } else if (endingType === 'consume') {
+                endingTitle = 'The Corrupted';
+                endingClass = 'corrupted';
+                endingMusic = 'ending_corrupted';
+                endingNarration = `Against all wisdom, you reach out and grasp the Elder Brain's power directly. The curse flows into you like poison, like ice, like fire. You scream.
+
+The Absolute Prism shatters in your other hand, unable to protect you from what you\'ve chosen. The curse spreads through your body, rewriting your very essence. You can feel your mind expanding... twisting... changing.
+
+Your flesh ripples and transforms. Tentacles burst from your face. Your skull elongates. Your thoughts fragment and reform in alien patterns. The hunger... the eternal hunger for minds to consume...
+
+You are no longer Nyx Hollow. You are something else now. Something terrible.
+
+The new Elder Brain rises from the ship and spreads its influence across Waterdeep. The mind flayer curse, rather than ending, finds a new and terrible master. The city falls within weeks. Your last human thought, buried deep beneath layers of alien consciousness, screams in eternal horror.
+
+Waterdeep is doomed. The curse continues. And it\'s all your fault.`;
+            
+            } else if (endingType === 'ascend') {
+                endingTitle = 'The Ascendant';
+                endingClass = 'ascendant';
+                endingMusic = 'ending_ascendant';
+                endingNarration = `You open The Ninth Grimoire with one hand while reaching toward the Elder Brain with the other. The ancient ritual begins to flow from your lips even as the curse flows into your body.
+
+Pain. Unimaginable pain. The curse tears at your mind, trying to transform you, to corrupt you, to consume you. But the ritual holds. The words of power create a lattice of control around the dark energy.
+
+You scream. Your body convulses. The Absolute Prism MELTS into your chest, fusing with your flesh, becoming part of you. The curse rages, but the ritual... the ritual is working.
+
+Hours pass, or maybe minutes, or maybe seconds - time loses meaning in your agony. And then... clarity.
+
+You open your eyes. They glow with an otherworldly purple light. The Absolute Prism pulses in your chest where your heart should be, clearly visible beneath your skin. Your appearance is altered - marked by the power you now contain. You look... corrupted. Wrong. Powerful.
+
+But you are in control.
+
+The curse is yours now. Contained. Mastered. The Elder Brain is dead, its power channeled into you. You can feel it - the ability to protect minds from psionic assault, to sense mind flayers, to hunt them down. You have become something new. Something neither fully mortal nor fully cursed.
+
+You return to Waterdeep transformed. Some call you a hero. Others call you a monster. You know the truth: you are both. The Ascendant. The one who dared to control what should not be controlled, and succeeded.
+
+The curse is broken. Waterdeep is saved. And you will continue to protect it with your newfound power, for as long as you draw breath.
+
+Perhaps longer.`;
+            }
+
+            // Play ending-specific music
+            if (endingMusic) {
+                playMusic(endingMusic, true);
+            }
+
+            displayNarration(endingNarration);
+            
+            // Update UI for game over
+            const actionsContainer = document.getElementById('actionButtons');
+            actionsContainer.innerHTML = `
+                <div class="game-over">
+                    <h2 class="ending-title ${endingClass}">${endingTitle}</h2>
+                    <button class="restart-btn" onclick="location.reload()">Begin a New Quest</button>
+                </div>
+            `;
+
+            document.getElementById('locationName').textContent = 'Quest Complete';
+        }
+
+        // Start the game when page loads
+        window.onload = initGame;
+    </script>
+</body>
+</html>
